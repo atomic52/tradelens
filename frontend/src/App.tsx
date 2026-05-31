@@ -16,17 +16,17 @@ const qc = new QueryClient({
 });
 
 function PrivateRoute() {
-  const { token, isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
   if (isLoading) return <div className="min-h-screen flex items-center justify-center text-gray-400">Loading...</div>;
-  if (!token) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/login" replace />;
   return <Outlet />;
 }
 
 // Redirect logged-in users away from public auth pages
 function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
-  const { token, isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
   if (isLoading) return null;
-  if (token) return <Navigate to="/dashboard" replace />;
+  if (user) return <Navigate to="/dashboard" replace />;
   return <>{children}</>;
 }
 
@@ -55,7 +55,7 @@ function Layout() {
           {accountName && <span className="hidden md:inline font-medium text-gray-700">{accountName}</span>}
           <span className="hidden md:inline">{user?.email}</span>
           <button
-            onClick={logout}
+            onClick={() => logout()}
             className="px-3 py-1.5 rounded border text-gray-600 hover:bg-gray-50 text-xs"
           >
             Sign out

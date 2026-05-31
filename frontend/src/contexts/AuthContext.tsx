@@ -4,10 +4,9 @@ import type { User } from "@/types";
 
 interface AuthContextValue {
   user: User | null;
-  token: string | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
 }
 
@@ -15,36 +14,26 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
-  const [isLoading, setIsLoading] = useState(!!localStorage.getItem("token"));
+  const [isLoading, setIsLoading] = useState(true);
 
+  // On mount, check if a valid session cookie exists by calling /users/me
   useEffect(() => {
-    const stored = localStorage.getItem("token");
-    if (!stored) {
-      setIsLoading(false);
-      return;
-    }
     authApi
       .me()
       .then(setUser)
-      .catch(() => {
-        localStorage.removeItem("token");
-        setToken(null);
-      })
+      .catch(() => setUser(null))
       .finally(() => setIsLoading(false));
   }, []);
 
   const login = async (email: string, password: string) => {
-    const { access_token } = await authApi.login(email, password);
-    localStorage.setItem("token", access_token);
-    setToken(access_token);
+    await authApi.login(email, password);
+    // Cookie is now set by the backend — fetch the user profile
     const me = await authApi.me();
     setUser(me);
   };
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    setToken(null);
+  const logout = async () => {
+    await authApi.logout();   // tells backend to clear the cookie
     setUser(null);
   };
 
@@ -54,7 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, logout, register }}>
+    <AuthContext.Provider value={{ user, isLoading, login, logout, register }}>
       {children}
     </AuthContext.Provider>
   );

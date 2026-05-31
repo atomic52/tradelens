@@ -23,10 +23,9 @@ async def check_duplicate(account_id: UUID, file_bytes: bytes, source_type: str,
     if result.scalar_one_or_none():
         raise HTTPException(
             status_code=409,
-            detail=f"This file has already been imported (hash={file_hash[:12]}…). "
+            detail=f"This file has already been imported (hash={file_hash[:12]}...). "
                    "Delete existing trades first if you want to re-import.",
         )
-    return file_hash
 
 
 async def persist_trades(

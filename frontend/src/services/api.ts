@@ -15,19 +15,17 @@ import type {
 // Locally this falls back to /api/v1 which Vite proxies to localhost:8000
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL ?? "/api/v1",
+  withCredentials: true, // send httpOnly cookie on every request
 });
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
+// No Authorization header needed — the JWT lives in an httpOnly cookie
+// set by the backend on login and cleared on logout.
 
 api.interceptors.response.use(
   (r) => r,
   (err) => {
     if (err.response?.status === 401) {
-      localStorage.removeItem("token");
+      // Cookie is gone or expired — send to login
       window.location.href = "/login";
     }
     return Promise.reject(err);
@@ -36,11 +34,15 @@ api.interceptors.response.use(
 
 export const auth = {
   login: (email: string, password: string) => {
+    // fastapi-users CookieTransport expects OAuth2 form-data
     const form = new FormData();
     form.append("username", email);
     form.append("password", password);
-    return api.post<{ access_token: string; token_type: string }>("/auth/jwt/login", form).then((r) => r.data);
+    return api
+      .post<{ detail: string }>("/auth/jwt/login", form)
+      .then((r) => r.data);
   },
+  logout: () => api.post("/auth/jwt/logout"),
   register: (email: string, password: string) =>
     api.post<User>("/auth/register", { email, password }).then((r) => r.data),
   me: () => api.get<User>("/users/me").then((r) => r.data),
