@@ -141,7 +141,7 @@ function Layout() {
         </NavLink>
         <NavLink to="/dashboard" className={navClass}>Dashboard</NavLink>
         <NavLink to="/trades" className={navClass}>Trade Log</NavLink>
-        <NavLink to="/import" className={navClass}>Import</NavLink>
+        <NavLink to="/import" className={navClass}>Upload</NavLink>
         <NavLink to="/settings" className={navClass}>Settings</NavLink>
         <div className="ml-auto flex items-center gap-3">
           <AccountSwitcher />

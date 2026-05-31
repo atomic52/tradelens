@@ -83,7 +83,7 @@ function MockImport() {
           <div className="w-2.5 h-2.5 rounded-full bg-slate-600" />
           <div className="w-2.5 h-2.5 rounded-full bg-slate-600" />
         </div>
-        <div className="flex-1 text-center text-[10px] text-slate-600 font-medium">Import</div>
+        <div className="flex-1 text-center text-[10px] text-slate-600 font-medium">Upload</div>
       </div>
       <div className="p-4 space-y-3">
         {/* import cards */}
@@ -101,7 +101,7 @@ function MockImport() {
               <p className="text-slate-500 text-[10px] mt-0.5">{c.desc}</p>
             </div>
             <div className="ml-auto">
-              <div className="bg-indigo-600/90 rounded-md px-2.5 py-1 text-[10px] text-white font-medium">Import</div>
+              <div className="bg-indigo-600/90 rounded-md px-2.5 py-1 text-[10px] text-white font-medium">Upload</div>
             </div>
           </div>
         ))}
@@ -110,7 +110,7 @@ function MockImport() {
           <svg className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
-          <p className="text-emerald-400 text-[10px] font-medium">Imported 28 trades (112 executions) — Jan 2026 Futures</p>
+          <p className="text-emerald-400 text-[10px] font-medium">Uploaded 28 trades (112 executions) — Jan 2026 Futures</p>
         </div>
       </div>
     </div>
@@ -331,7 +331,7 @@ export default function LandingPage() {
           </div>
           {/* copy left */}
           <div className="flex-1 max-w-md">
-            <p className="text-violet-400 text-xs font-semibold uppercase tracking-widest mb-4">Import</p>
+            <p className="text-violet-400 text-xs font-semibold uppercase tracking-widest mb-4">Upload</p>
             <h2 className="text-3xl md:text-4xl font-extrabold text-white leading-tight tracking-tight mb-5">
               Statements in.<br />Data out. Instantly.
             </h2>

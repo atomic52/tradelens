@@ -109,7 +109,7 @@ export default function Dashboard() {
         <div className="text-center py-20 space-y-3">
           <p className="text-slate-500 dark:text-slate-400 text-sm">No closed trades for this period.</p>
           <Link to="/import" className="inline-block text-brand-600 text-sm hover:underline">
-            Import a statement →
+            Upload a statement →
           </Link>
         </div>
       ) : (

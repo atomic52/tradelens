@@ -79,7 +79,7 @@ function ImportCard({ title, description, instructions, accept, onImport, onSucc
           disabled={mutation.isPending || !hasFile}
           className="bg-brand-600 text-white px-4 py-2 rounded text-sm hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-          {mutation.isPending ? "Importing..." : "Import"}
+          {mutation.isPending ? "Uploading..." : "Upload"}
         </button>
       </div>
 
@@ -91,7 +91,7 @@ function ImportCard({ title, description, instructions, accept, onImport, onSucc
       {errorMsg === "upgrade" && (
         <div className="rounded-md bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800 px-4 py-3 text-sm text-orange-800 dark:text-orange-300">
           <p className="font-medium">Free tier limit reached</p>
-          <p className="mt-0.5">You've used all 5 free imports. Upgrade to Pro for unlimited imports.</p>
+          <p className="mt-0.5">You've used all 5 free uploads. Upgrade to Pro for unlimited uploads.</p>
         </div>
       )}
       {errorMsg && errorMsg !== "upgrade" && (
@@ -130,7 +130,7 @@ export default function ImportPage() {
   if (!accountId) {
     return (
       <div className="text-center py-20 text-slate-500 dark:text-slate-400 text-sm">
-        Create an account in <a href="/settings" className="text-brand-600 hover:underline">Settings</a> before importing.
+        Create an account in <a href="/settings" className="text-brand-600 hover:underline">Settings</a> before uploading.
       </div>
     );
   }
@@ -138,7 +138,7 @@ export default function ImportPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Import</h1>
+        <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Upload</h1>
         {usage && (
           <div className={`text-sm px-3 py-1.5 rounded-full border ${
             usage.used >= usage.limit
@@ -147,13 +147,13 @@ export default function ImportPage() {
               ? "bg-yellow-50 dark:bg-yellow-950/30 border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-300"
               : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400"
           }`}>
-            {usage.used} / {usage.limit} free imports used
+            {usage.used} / {usage.limit} free uploads used
           </div>
         )}
       </div>
       {usage && usage.used >= usage.limit && (
         <div className="rounded-md bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800 px-4 py-3 text-sm text-orange-800 dark:text-orange-300">
-          <span className="font-medium">Free tier limit reached.</span> You've used all {usage.limit} free imports. Upgrade to Pro for unlimited imports.
+          <span className="font-medium">Free tier limit reached.</span> You've used all {usage.limit} free uploads. Upgrade to Pro for unlimited uploads.
         </div>
       )}
       <div className="grid md:grid-cols-3 gap-6">
