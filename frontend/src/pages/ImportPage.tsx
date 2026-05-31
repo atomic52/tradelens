@@ -91,7 +91,7 @@ function ImportCard({ title, description, instructions, accept, onImport, onSucc
       {errorMsg === "upgrade" && (
         <div className="rounded-md bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800 px-4 py-3 text-sm text-orange-800 dark:text-orange-300">
           <p className="font-medium">Free tier limit reached</p>
-          <p className="mt-0.5">You've used all 5 free uploads. Upgrade to Pro for unlimited uploads.</p>
+          <p className="mt-0.5">You've used all 10 free uploads. Upgrade to Pro for unlimited uploads.</p>
         </div>
       )}
       {errorMsg && errorMsg !== "upgrade" && (

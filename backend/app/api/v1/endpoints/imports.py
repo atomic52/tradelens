@@ -21,7 +21,7 @@ from app.services.trade_matcher import match_trades
 
 router = APIRouter()
 
-FREE_TIER_IMPORT_LIMIT = 5
+FREE_TIER_IMPORT_LIMIT = 10
 MAX_UPLOAD_BYTES = 20 * 1024 * 1024  # 20 MB
 
 
