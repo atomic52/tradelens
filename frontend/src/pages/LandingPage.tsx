@@ -259,7 +259,7 @@ export default function LandingPage() {
             Sign in
           </Link>
         </div>
-        <p className="text-xs mt-3" style={{ color: "rgba(100,116,139,0.7)" }}>5 free imports · no credit card required</p>
+        <p className="text-xs mt-3" style={{ color: "rgba(100,116,139,0.7)" }}>10 free uploads · no credit card required</p>
 
         {/* stats strip */}
         <div className="relative mt-20 pt-8 w-full max-w-2xl mx-auto grid grid-cols-4 divide-x"
@@ -475,7 +475,7 @@ export default function LandingPage() {
             }}>your edge?</span>
           </h2>
           <p className="text-slate-400 mb-10 text-lg leading-relaxed max-w-md mx-auto">
-            Start with 5 free imports. Understand what's working before you commit to anything.
+            Start with 10 free uploads. Understand what's working before you commit to anything.
           </p>
           <Link to="/register"
             className="inline-flex items-center gap-2 bg-white text-slate-900 px-10 py-4 rounded-xl text-sm font-bold hover:bg-slate-100 transition-colors shadow-2xl shadow-black/40">
