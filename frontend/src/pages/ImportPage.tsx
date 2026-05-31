@@ -45,15 +45,13 @@ function ImportCard({ title, description, instructions, accept, onImport, onSucc
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleImport = () => {
     const file = fileRef.current?.files?.[0];
-    if (file) {
-      setResult(null);
-      setErrorMsg(null);
-      setDuplicate(false);
-      mutation.mutate(file);
-    }
+    if (!file) return;
+    setResult(null);
+    setErrorMsg(null);
+    setDuplicate(false);
+    mutation.mutate(file);
   };
 
   return (
@@ -65,7 +63,7 @@ function ImportCard({ title, description, instructions, accept, onImport, onSucc
 
       <p className="text-xs text-gray-400 bg-gray-50 rounded p-3 leading-relaxed">{instructions}</p>
 
-      <form onSubmit={handleSubmit} className="space-y-3">
+      <div className="space-y-3">
         <input
           ref={fileRef}
           type="file"
@@ -73,13 +71,14 @@ function ImportCard({ title, description, instructions, accept, onImport, onSucc
           className="block w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
         />
         <button
-          type="submit"
+          type="button"
+          onClick={handleImport}
           disabled={mutation.isPending}
           className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 disabled:opacity-50"
         >
-          {mutation.isPending ? "Importing…" : "Import"}
+          {mutation.isPending ? "Importing..." : "Import"}
         </button>
-      </form>
+      </div>
 
       {duplicate && (
         <div className="rounded-md bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
