@@ -51,7 +51,9 @@ cookie_transport = CookieTransport(
     cookie_max_age=settings.access_token_expire_minutes * 60,
     cookie_secure=not _is_local,  # False on localhost (HTTP), True in production (HTTPS)
     cookie_httponly=True,         # not accessible via JS — prevents XSS token theft
-    cookie_samesite="lax",
+    # "none" required for cross-origin requests (Vercel frontend → Fly backend)
+    # "lax" would block cookies on cross-origin POST/PATCH/DELETE
+    cookie_samesite="none" if not _is_local else "lax",
 )
 
 
