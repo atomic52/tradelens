@@ -158,25 +158,25 @@ export default function ImportPage() {
       )}
       <div className="grid md:grid-cols-3 gap-6">
         <ImportCard
-          title="Robinhood CSV"
-          description="Stocks & options trade history"
-          instructions="In Robinhood: Account → Statements & History → Export CSV. Download the file and upload it here."
+          title="Trade History CSV"
+          description="Stocks & options activity report"
+          instructions="In Robinhood: Reports and statements → Reports → Export CSV. Download the file and upload it here."
           accept=".csv"
           onImport={(f) => importsApi.robinhoodCsv(accountId, f)}
           onSuccess={invalidate}
         />
         <ImportCard
-          title="Futures PDF"
-          description="Robinhood Derivatives daily or monthly statement"
-          instructions="Log in to Robinhood → Account → Statements → Futures Statements. Download either a daily or monthly PDF."
+          title="Futures & Event Contracts"
+          description="Monthly futures & event contracts statement"
+          instructions="In Robinhood: Reports and statements → Monthly statements → Futures & event contracts. Download any monthly PDF."
           accept=".pdf"
           onImport={(f) => importsApi.futuresPdf(accountId, f)}
           onSuccess={invalidate}
         />
         <ImportCard
-          title="Non-Futures PDF"
-          description="Robinhood monthly brokerage statement"
-          instructions="Log in to Robinhood → Account → Statements → Monthly Statements. Download a monthly PDF (the one without Derivatives in the title)."
+          title="Individual Investing Statement"
+          description="Monthly individual investing account statement"
+          instructions="In Robinhood: Reports and statements → Monthly statements → Individual. Download any monthly PDF."
           accept=".pdf"
           onImport={(f) => importsApi.nonfuturesPdf(accountId, f)}
           onSuccess={invalidate}

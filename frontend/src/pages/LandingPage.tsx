@@ -88,9 +88,9 @@ function MockImport() {
       <div className="p-4 space-y-3">
         {/* import cards */}
         {[
-          { title: "Robinhood CSV", badge: "CSV", desc: "Stocks & options history" },
-          { title: "Futures PDF", badge: "PDF", desc: "Daily or monthly statements" },
-          { title: "Non-Futures PDF", badge: "PDF", desc: "Monthly brokerage PDF" },
+          { title: "Trade History CSV", badge: "CSV", desc: "Stocks & options activity report" },
+          { title: "Futures & Event Contracts", badge: "PDF", desc: "Monthly futures statement" },
+          { title: "Individual Investing Statement", badge: "PDF", desc: "Monthly investing account PDF" },
         ].map((c) => (
           <div key={c.title} className="bg-slate-800/70 rounded-xl border border-slate-700/50 p-3 flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center flex-shrink-0 text-[9px] font-bold text-indigo-400">
@@ -340,7 +340,7 @@ export default function LandingPage() {
             </p>
             <ul className="space-y-3">
               {[
-                "Robinhood CSV, Futures PDF, Monthly PDF",
+                "Trade History CSV, Futures & Event Contracts, Individual Statement",
                 "FIFO trade matching across executions",
                 "SHA-256 deduplication — import safely twice",
                 "Futures multipliers: ES, NQ, MNQ, GC, SI…",
