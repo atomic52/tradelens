@@ -1,6 +1,6 @@
 # TradeLens
 
-A trade journal and analytics platform for active traders. Import your Robinhood statements, visualise P&L, and track performance metrics — built as an open-source Tradervue alternative.
+A trade journal and analytics platform for active traders. Import your Robinhood statements, visualise P&L, and track performance metrics.
 
 ## Quick Start (local)
 
