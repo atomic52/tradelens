@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.v1.endpoints import accounts, analytics, imports, trades
-from app.core.auth import auth_backend, fastapi_users
+from app.core.auth import auth_backend, current_active_user, fastapi_users
 from app.schemas.user import UserCreate, UserRead, UserUpdate
 
 router = APIRouter(prefix="/api/v1")
@@ -17,6 +17,8 @@ router.include_router(
     prefix="/auth",
     tags=["auth"],
 )
+
+# Only expose /users/me — not the admin GET/PATCH/DELETE /users/{id} routes
 router.include_router(
     fastapi_users.get_users_router(UserRead, UserUpdate),
     prefix="/users",

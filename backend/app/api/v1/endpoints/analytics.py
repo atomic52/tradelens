@@ -3,12 +3,13 @@ from datetime import date, datetime, timedelta, timezone
 from typing import Literal
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.auth import current_active_user
 from app.db.base import get_async_session
+from app.models.account import Account
 from app.models.trade import Trade
 from app.models.user import User
 
@@ -32,15 +33,35 @@ def _period_dates(period: Period) -> tuple[datetime | None, datetime | None]:
     return None, None
 
 
+async def _verify_account_ownership(
+    account_id: UUID,
+    user_id: UUID,
+    session: AsyncSession,
+) -> None:
+    """Raise 404 if the account doesn't exist or doesn't belong to this user."""
+    result = await session.execute(
+        select(Account).where(Account.id == account_id, Account.user_id == user_id)
+    )
+    if not result.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail="Account not found")
+
+
 async def _load_closed_trades(
     account_id: UUID,
+    user_id: UUID,
     period: Period,
     session: AsyncSession,
 ) -> list[Trade]:
+    await _verify_account_ownership(account_id, user_id, session)
     start, end = _period_dates(period)
     stmt = (
         select(Trade)
-        .where(Trade.account_id == account_id, Trade.status == "closed")
+        .join(Account, Trade.account_id == Account.id)
+        .where(
+            Trade.account_id == account_id,
+            Account.user_id == user_id,
+            Trade.status == "closed",
+        )
         .order_by(Trade.closed_at)
     )
     if start:
@@ -124,7 +145,7 @@ async def get_summary(
     session: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
 ):
-    trades = await _load_closed_trades(account_id, period, session)
+    trades = await _load_closed_trades(account_id, user.id, period, session)
     return _compute_summary(trades)
 
 
@@ -135,11 +156,16 @@ async def get_pnl_daily(
     session: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
 ):
+    # Clamp days to a sane range to prevent abuse (e.g. days=999999)
+    days = max(1, min(days, 365 * 5))
+    await _verify_account_ownership(account_id, user.id, session)
     cutoff = datetime.now(tz=timezone.utc) - timedelta(days=days)
     result = await session.execute(
         select(Trade)
+        .join(Account, Trade.account_id == Account.id)
         .where(
             Trade.account_id == account_id,
+            Account.user_id == user.id,
             Trade.status == "closed",
             Trade.closed_at >= cutoff,
         )
@@ -172,7 +198,7 @@ async def get_pnl_cumulative(
     session: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
 ):
-    trades = await _load_closed_trades(account_id, period, session)
+    trades = await _load_closed_trades(account_id, user.id, period, session)
     cumulative = 0.0
     rows = []
     for t in trades:
@@ -192,7 +218,7 @@ async def get_pnl_by_hour(
     session: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
 ):
-    trades = await _load_closed_trades(account_id, period, session)
+    trades = await _load_closed_trades(account_id, user.id, period, session)
 
     buckets: dict[int, list[float]] = defaultdict(list)
     for t in trades:
@@ -216,7 +242,7 @@ async def get_pnl_by_symbol(
     session: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
 ):
-    trades = await _load_closed_trades(account_id, period, session)
+    trades = await _load_closed_trades(account_id, user.id, period, session)
 
     buckets: dict[str, list[float]] = defaultdict(list)
     for t in trades:

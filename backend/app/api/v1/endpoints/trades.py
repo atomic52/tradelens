@@ -1,3 +1,4 @@
+from typing import Literal
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -34,7 +35,7 @@ async def _verify_trade_ownership(
 @router.get("/accounts/{account_id}/trades", response_model=list[TradeRead])
 async def list_trades(
     account_id: UUID,
-    status: str | None = None,
+    status: Literal["open", "closed"] | None = None,
     session: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
 ):
