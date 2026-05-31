@@ -15,6 +15,7 @@ interface ImportCardProps {
 
 function ImportCard({ title, description, instructions, accept, onImport, onSuccess }: ImportCardProps) {
   const fileRef = useRef<HTMLInputElement>(null);
+  const [hasFile, setHasFile] = useState(false);
   const [result, setResult] = useState<ImportResult | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [duplicate, setDuplicate] = useState(false);
@@ -25,6 +26,7 @@ function ImportCard({ title, description, instructions, accept, onImport, onSucc
       setResult(data);
       setErrorMsg(null);
       setDuplicate(false);
+      setHasFile(false);
       onSuccess();
       if (fileRef.current) fileRef.current.value = "";
     },
@@ -68,13 +70,14 @@ function ImportCard({ title, description, instructions, accept, onImport, onSucc
           ref={fileRef}
           type="file"
           accept={accept}
+          onChange={(e) => setHasFile(!!e.target.files?.[0])}
           className="block w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
         />
         <button
           type="button"
           onClick={handleImport}
-          disabled={mutation.isPending}
-          className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 disabled:opacity-50"
+          disabled={mutation.isPending || !hasFile}
+          className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {mutation.isPending ? "Importing..." : "Import"}
         </button>
