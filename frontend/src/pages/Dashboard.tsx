@@ -207,7 +207,7 @@ export default function Dashboard() {
                 : <p className="text-sm text-slate-400 py-16 text-center">No data for this period</p>}
             </div>
 
-            <div className="bg-white rounded-xl border border-slate-100 p-5">
+            <div className="bg-white rounded-xl border border-slate-100 p-5 md:col-span-2">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-sm font-semibold text-slate-700">P&L by Symbol</h2>
                 <span className="text-xs text-slate-400">{bySymbol.length} symbols</span>
