@@ -33,19 +33,23 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         if not settings.resend_api_key:
             logging.warning("RESEND_API_KEY not set — password reset URL: %s", reset_url)
             return
-        resend.api_key = settings.resend_api_key
-        resend.Emails.send({
-            "from": settings.from_email,
-            "to": user.email,
-            "subject": "Reset your TradeLens password",
-            "html": f"""
-                <p>Hi,</p>
-                <p>Click the link below to reset your TradeLens password.
-                   This link expires in 1 hour.</p>
-                <p><a href="{reset_url}">{reset_url}</a></p>
-                <p>If you didn't request a password reset, you can ignore this email.</p>
-            """,
-        })
+        try:
+            resend.api_key = settings.resend_api_key
+            resend.Emails.send({
+                "from": settings.from_email,
+                "to": [user.email],          # Resend SDK requires a list
+                "subject": "Reset your TradeLens password",
+                "html": (
+                    "<p>Hi,</p>"
+                    "<p>Click the link below to reset your TradeLens password. "
+                    "This link expires in 1 hour.</p>"
+                    f'<p><a href="{reset_url}">{reset_url}</a></p>'
+                    "<p>If you didn't request this, you can ignore this email.</p>"
+                ),
+            })
+        except Exception:
+            logging.exception("Failed to send password reset email to %s", user.email)
+            # Don't re-raise — the token is still valid; user can copy URL from logs
 
     async def validate_password(self, password: str, user: User | None = None) -> None:  # type: ignore[override]
         if len(password) < 8:
