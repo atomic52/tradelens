@@ -1,0 +1,83 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Navigate, NavLink, Outlet, Route, Routes } from "react-router-dom";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { useFirstAccount } from "@/hooks/useFirstAccount";
+import Dashboard from "@/pages/Dashboard";
+import ImportPage from "@/pages/ImportPage";
+import LoginPage from "@/pages/LoginPage";
+import RegisterPage from "@/pages/RegisterPage";
+import SettingsPage from "@/pages/SettingsPage";
+import TradeDetail from "@/pages/TradeDetail";
+import TradeLog from "@/pages/TradeLog";
+
+const qc = new QueryClient({
+  defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
+});
+
+function PrivateRoute() {
+  const { token, isLoading } = useAuth();
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center text-gray-400">Loading…</div>;
+  if (!token) return <Navigate to="/login" replace />;
+  return <Outlet />;
+}
+
+function navClass({ isActive }: { isActive: boolean }) {
+  return `px-3 py-2 rounded text-sm font-medium transition-colors ${
+    isActive ? "bg-blue-100 text-blue-700" : "text-gray-600 hover:bg-gray-100"
+  }`;
+}
+
+function Layout() {
+  const { user, logout } = useAuth();
+  const { accounts } = useFirstAccount();
+  const accountName = accounts[0]?.name;
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <nav className="bg-white border-b px-6 py-3 flex items-center gap-1">
+        <span className="font-bold text-blue-700 mr-4 text-base">TradeLens</span>
+        <NavLink to="/" end className={navClass}>Dashboard</NavLink>
+        <NavLink to="/trades" className={navClass}>Trade Log</NavLink>
+        <NavLink to="/import" className={navClass}>Import</NavLink>
+        <NavLink to="/settings" className={navClass}>Settings</NavLink>
+        <div className="ml-auto flex items-center gap-3 text-sm text-gray-500">
+          {accountName && <span className="hidden md:inline font-medium text-gray-700">{accountName}</span>}
+          <span className="hidden md:inline">{user?.email}</span>
+          <button
+            onClick={logout}
+            className="px-3 py-1.5 rounded border text-gray-600 hover:bg-gray-50 text-xs"
+          >
+            Sign out
+          </button>
+        </div>
+      </nav>
+      <main className="max-w-7xl mx-auto px-6 py-6">
+        <Outlet />
+      </main>
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <QueryClientProvider client={qc}>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route element={<PrivateRoute />}>
+              <Route element={<Layout />}>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/trades" element={<TradeLog />} />
+                <Route path="/trades/:id" element={<TradeDetail />} />
+                <Route path="/import" element={<ImportPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+              </Route>
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </AuthProvider>
+  );
+}
