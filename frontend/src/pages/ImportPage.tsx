@@ -57,15 +57,15 @@ function ImportCard({ title, description, instructions, accept, onImport, onSucc
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-lg border dark:border-slate-800 p-6 space-y-4">
-      <div>
+    <div className="bg-white dark:bg-slate-900 rounded-lg border dark:border-slate-800 p-6 flex flex-col">
+      <div className="mb-4">
         <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{description}</p>
       </div>
 
-      <p className="text-xs text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800 rounded p-3 leading-relaxed">{instructions}</p>
+      <p className="text-xs text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800 rounded p-3 leading-relaxed flex-1">{instructions}</p>
 
-      <div className="space-y-3">
+      <div className="space-y-3 mt-4">
         <input
           ref={fileRef}
           type="file"
