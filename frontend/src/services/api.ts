@@ -24,8 +24,12 @@ const api = axios.create({
 api.interceptors.response.use(
   (r) => r,
   (err) => {
-    if (err.response?.status === 401) {
-      // Cookie is gone or expired — send to login
+    const url: string = err.config?.url ?? "";
+    const is401 = err.response?.status === 401;
+    // Don't redirect on the session-check call itself — a 401 there just means
+    // the user isn't logged in yet, which is expected on public pages.
+    const isSessionCheck = url.includes("/users/me");
+    if (is401 && !isSessionCheck) {
       window.location.href = "/login";
     }
     return Promise.reject(err);
