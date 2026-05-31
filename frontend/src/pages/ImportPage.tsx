@@ -42,7 +42,7 @@ function ImportCard({ title, description, instructions, accept, onImport, onSucc
         setErrorMsg("upgrade");
       } else {
         setDuplicate(false);
-        setErrorMsg(detail || "Import failed. Check the file and try again.");
+        setErrorMsg(detail || `Import failed (HTTP ${status ?? "unknown"}). Check the file and try again.`);
       }
     },
   });
