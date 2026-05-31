@@ -7,7 +7,6 @@ import StatCard from "@/components/ui/StatCard";
 import PeriodToggle from "@/components/ui/PeriodToggle";
 import DailyPnlChart from "@/components/charts/DailyPnlChart";
 import CumulativeChart from "@/components/charts/CumulativeChart";
-import HourlyPnlChart from "@/components/charts/HourlyPnlChart";
 import SymbolPnlTable from "@/components/charts/SymbolPnlTable";
 import type { Period } from "@/types";
 
@@ -65,12 +64,6 @@ export default function Dashboard() {
   const { data: daily = [] } = useQuery({
     queryKey: ["pnl-daily", accountId, period],
     queryFn: () => analytics.pnlDaily(accountId!, PERIOD_DAYS[period]),
-    ...queryOpts,
-  });
-
-  const { data: hourly = [] } = useQuery({
-    queryKey: ["pnl-by-hour", accountId, period],
-    queryFn: () => analytics.pnlByHour(accountId!, period),
     ...queryOpts,
   });
 
@@ -211,16 +204,6 @@ export default function Dashboard() {
               </div>
               {cumulative.length > 0
                 ? <CumulativeChart data={cumulative} />
-                : <p className="text-sm text-slate-400 py-16 text-center">No data for this period</p>}
-            </div>
-
-            <div className="bg-white rounded-xl border border-slate-100 p-5">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-semibold text-slate-700">P&L by Hour of Day</h2>
-                <span className="text-xs text-slate-400">entry time</span>
-              </div>
-              {hourly.length > 0
-                ? <HourlyPnlChart data={hourly} />
                 : <p className="text-sm text-slate-400 py-16 text-center">No data for this period</p>}
             </div>
 
