@@ -16,6 +16,7 @@ import type {
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL ?? "/api/v1",
   withCredentials: true, // send httpOnly cookie on every request
+  timeout: 10_000,       // 10s — prevents hanging on Fly cold starts
 });
 
 // No Authorization header needed — the JWT lives in an httpOnly cookie

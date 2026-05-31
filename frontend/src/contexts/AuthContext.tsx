@@ -16,13 +16,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // On mount, check if a valid session cookie exists by calling /users/me
+  // On mount, check if a valid session cookie exists by calling /users/me.
+  // Resolve after 8s regardless so a sleeping Fly machine doesn't blank the page.
   useEffect(() => {
+    const timeout = setTimeout(() => setIsLoading(false), 8_000);
     authApi
       .me()
       .then(setUser)
       .catch(() => setUser(null))
-      .finally(() => setIsLoading(false));
+      .finally(() => {
+        clearTimeout(timeout);
+        setIsLoading(false);
+      });
   }, []);
 
   const login = async (email: string, password: string) => {
