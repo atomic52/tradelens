@@ -2,7 +2,7 @@ import hashlib
 from uuid import UUID
 
 from fastapi import HTTPException
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.execution import Execution
@@ -15,12 +15,12 @@ async def check_duplicate(account_id: UUID, file_bytes: bytes, source_type: str,
     """Raise 409 if this file has already been imported for this account."""
     file_hash = hashlib.sha256(file_bytes).hexdigest()
     result = await session.execute(
-        select(ImportLog).where(
+        select(func.count(ImportLog.id)).where(
             ImportLog.account_id == account_id,
             ImportLog.file_hash == file_hash,
         )
     )
-    if result.scalar_one_or_none():
+    if result.scalar_one() > 0:
         raise HTTPException(
             status_code=409,
             detail=f"This file has already been imported (hash={file_hash[:12]}...). "
