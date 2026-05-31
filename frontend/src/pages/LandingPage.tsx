@@ -340,7 +340,7 @@ export default function LandingPage() {
             </p>
             <ul className="space-y-3">
               {[
-                "Trade History CSV, Futures & Event Contracts, Individual Statement",
+                "Trade History CSV, Futures & Event Contracts, Individual Investing Statement",
                 "FIFO trade matching across executions",
                 "SHA-256 deduplication — import safely twice",
                 "Futures multipliers: ES, NQ, MNQ, GC, SI…",
