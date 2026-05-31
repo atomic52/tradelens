@@ -24,14 +24,30 @@ function formatHoldTime(mins: number | null): string {
   return h > 0 ? `${d}d ${h}h` : `${d}d`;
 }
 
-function fmt(v: number) {
-  return `${v >= 0 ? "+" : ""}$${Math.abs(v).toFixed(2)}`;
+function fmt(v: number, decimals = 2) {
+  return `${v >= 0 ? "+" : ""}$${Math.abs(v).toFixed(decimals)}`;
+}
+
+function fmtK(v: number) {
+  if (Math.abs(v) >= 1000) {
+    return `${v >= 0 ? "+" : "-"}$${(Math.abs(v) / 1000).toFixed(1)}k`;
+  }
+  return fmt(v, 0);
 }
 
 function streakLabel(type: "win" | "loss" | null, count: number): string {
   if (!type) return "—";
   return `${count} ${type === "win" ? "W" : "L"}`;
 }
+
+// Map period to approximate days for the daily chart
+const PERIOD_DAYS: Record<Period, number> = {
+  today: 1,
+  week: 7,
+  month: 31,
+  ytd: 365,
+  all: 365 * 10,
+};
 
 export default function Dashboard() {
   const [period, setPeriod] = useState<Period>("all");
@@ -47,8 +63,8 @@ export default function Dashboard() {
   });
 
   const { data: daily = [] } = useQuery({
-    queryKey: ["pnl-daily", accountId],
-    queryFn: () => analytics.pnlDaily(accountId!, 90),
+    queryKey: ["pnl-daily", accountId, period],
+    queryFn: () => analytics.pnlDaily(accountId!, PERIOD_DAYS[period]),
     ...queryOpts,
   });
 
@@ -71,14 +87,14 @@ export default function Dashboard() {
   });
 
   if (accountLoading) {
-    return <div className="text-gray-400 py-12 text-center">Loading…</div>;
+    return <div className="text-slate-400 py-12 text-center">Loading...</div>;
   }
 
   if (!accountId) {
     return (
       <div className="text-center py-20 space-y-3">
-        <p className="text-gray-500">No accounts yet.</p>
-        <Link to="/settings" className="inline-block bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700">
+        <p className="text-slate-500">No accounts yet.</p>
+        <Link to="/settings" className="inline-block bg-brand-500 text-white px-4 py-2 rounded text-sm hover:bg-brand-600">
           Create an account
         </Link>
       </div>
@@ -86,77 +102,133 @@ export default function Dashboard() {
   }
 
   const noTrades = summary?.total_trades === 0;
+  const s = summary;
 
   return (
-    <div className="space-y-6">
-      {/* Period filter */}
+    <div className="space-y-5">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-gray-900">Dashboard</h1>
+        <h1 className="text-xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
         <PeriodToggle value={period} onChange={setPeriod} />
       </div>
 
       {noTrades ? (
         <div className="text-center py-20 space-y-3">
-          <p className="text-gray-500">No closed trades for this period.</p>
-          <Link to="/import" className="inline-block text-blue-600 text-sm hover:underline">
+          <p className="text-slate-500 text-sm">No closed trades for this period.</p>
+          <Link to="/import" className="inline-block text-brand-600 text-sm hover:underline">
             Import a statement →
           </Link>
         </div>
       ) : (
         <>
-          {/* Primary stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StatCard label="Net P&L" value={summary ? fmt(summary.total_pnl) : "—"} colorize />
-            <StatCard label="Win Rate" value={summary ? `${summary.win_rate}%` : "—"} />
-            <StatCard label="Profit Factor" value={summary?.profit_factor ?? "—"} />
-            <StatCard label="Total Trades" value={summary?.total_trades ?? "—"} />
+          {/* Hero row — Net P&L + key ratios */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="col-span-2 md:col-span-1">
+              <StatCard
+                label="Net P&L"
+                value={s ? fmt(s.total_pnl) : "—"}
+                sub={s ? `${s.total_trades} trades` : undefined}
+                colorize
+                size="large"
+                accent
+              />
+            </div>
+            <StatCard
+              label="Win Rate"
+              value={s ? `${s.win_rate}%` : "—"}
+              sub={s ? `${s.winning_trades}W / ${s.losing_trades}L` : undefined}
+            />
+            <StatCard
+              label="Profit Factor"
+              value={s?.profit_factor ?? "—"}
+              sub={s ? `Exp. ${fmt(s.expectancy, 0)}/trade` : undefined}
+            />
+            <StatCard
+              label="Avg Hold Time"
+              value={formatHoldTime(s?.avg_hold_minutes ?? null)}
+              sub={s ? `Max dd ${fmtK(-s.max_drawdown)}` : undefined}
+            />
           </div>
 
-          {/* Secondary stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StatCard label="Avg Winner" value={summary ? `+$${summary.avg_winner.toFixed(2)}` : "—"} colorize />
-            <StatCard label="Avg Loser" value={summary ? `$${summary.avg_loser.toFixed(2)}` : "—"} colorize />
-            <StatCard label="Max Drawdown" value={summary ? `-$${summary.max_drawdown.toFixed(2)}` : "—"} colorize />
-            <StatCard label="Expectancy" value={summary ? fmt(summary.expectancy) : "—"} colorize />
+          {/* Secondary row */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <StatCard
+              label="Avg Winner"
+              value={s ? `+$${s.avg_winner.toFixed(0)}` : "—"}
+              sub={s ? `Best: +$${s.largest_win.toFixed(0)}` : undefined}
+              colorize
+            />
+            <StatCard
+              label="Avg Loser"
+              value={s ? `-$${Math.abs(s.avg_loser).toFixed(0)}` : "—"}
+              sub={s ? `Worst: -$${Math.abs(s.largest_loss).toFixed(0)}` : undefined}
+              colorize
+            />
+            <StatCard
+              label="Gross Profit"
+              value={s ? `$${s.gross_profit.toFixed(0)}` : "—"}
+            />
+            <StatCard
+              label="Gross Loss"
+              value={s ? `-$${s.gross_loss.toFixed(0)}` : "—"}
+              colorize
+            />
           </div>
 
-          {/* Streak stats */}
-          <div className="grid grid-cols-3 gap-4">
+          {/* Streak row */}
+          <div className="grid grid-cols-3 gap-3">
             <StatCard
               label="Current Streak"
-              value={summary ? streakLabel(summary.current_streak.type, summary.current_streak.count) : "—"}
+              value={s ? streakLabel(s.current_streak.type, s.current_streak.count) : "—"}
+              colorize={s?.current_streak.type === "win"}
             />
-            <StatCard label="Best Win Streak" value={summary?.max_win_streak ?? "—"} />
-            <StatCard label="Worst Loss Streak" value={summary?.max_loss_streak ?? "—"} />
-          </div>
-
-          {/* Extra stats row */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StatCard label="Largest Win" value={summary ? `+$${summary.largest_win.toFixed(2)}` : "—"} colorize />
-            <StatCard label="Largest Loss" value={summary ? `$${summary.largest_loss.toFixed(2)}` : "—"} colorize />
-            <StatCard label="Avg Hold Time" value={formatHoldTime(summary?.avg_hold_minutes ?? null)} />
-            <StatCard
-              label="Gross P&L"
-              value={summary ? `$${summary.gross_profit.toFixed(0)} / -$${summary.gross_loss.toFixed(0)}` : "—"}
-            />
+            <StatCard label="Best Win Streak" value={s?.max_win_streak ?? "—"} sub="consecutive wins" />
+            <StatCard label="Worst Loss Streak" value={s?.max_loss_streak ?? "—"} sub="consecutive losses" />
           </div>
 
           {/* Charts */}
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-lg border p-4">
-              <h2 className="text-sm font-medium text-gray-600 mb-3">Daily P&L (last 90 days)</h2>
-              {daily.length > 0 ? <DailyPnlChart data={daily} /> : <p className="text-sm text-gray-400 py-16 text-center">No data</p>}
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="bg-white rounded-xl border border-slate-100 p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-semibold text-slate-700">Daily P&L</h2>
+                <span className="text-xs text-slate-400">
+                  {daily.length > 0 ? `${daily.length} trading days` : ""}
+                </span>
+              </div>
+              {daily.length > 0
+                ? <DailyPnlChart data={daily} />
+                : <p className="text-sm text-slate-400 py-16 text-center">No data for this period</p>}
             </div>
-            <div className="bg-white rounded-lg border p-4">
-              <h2 className="text-sm font-medium text-gray-600 mb-3">Cumulative P&L</h2>
-              {cumulative.length > 0 ? <CumulativeChart data={cumulative} /> : <p className="text-sm text-gray-400 py-16 text-center">No data</p>}
+
+            <div className="bg-white rounded-xl border border-slate-100 p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-semibold text-slate-700">Cumulative P&L</h2>
+                {cumulative.length > 0 && s && (
+                  <span className={`text-xs font-semibold tabular-nums ${s.total_pnl >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+                    {fmt(s.total_pnl)}
+                  </span>
+                )}
+              </div>
+              {cumulative.length > 0
+                ? <CumulativeChart data={cumulative} />
+                : <p className="text-sm text-slate-400 py-16 text-center">No data for this period</p>}
             </div>
-            <div className="bg-white rounded-lg border p-4">
-              <h2 className="text-sm font-medium text-gray-600 mb-3">P&L by Hour of Day</h2>
-              {hourly.length > 0 ? <HourlyPnlChart data={hourly} /> : <p className="text-sm text-gray-400 py-16 text-center">No data</p>}
+
+            <div className="bg-white rounded-xl border border-slate-100 p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-semibold text-slate-700">P&L by Hour of Day</h2>
+                <span className="text-xs text-slate-400">entry time</span>
+              </div>
+              {hourly.length > 0
+                ? <HourlyPnlChart data={hourly} />
+                : <p className="text-sm text-slate-400 py-16 text-center">No data for this period</p>}
             </div>
-            <div className="bg-white rounded-lg border p-4">
-              <h2 className="text-sm font-medium text-gray-600 mb-3">P&L by Symbol</h2>
+
+            <div className="bg-white rounded-xl border border-slate-100 p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-semibold text-slate-700">P&L by Symbol</h2>
+                <span className="text-xs text-slate-400">{bySymbol.length} symbols</span>
+              </div>
               <SymbolPnlTable data={bySymbol} />
             </div>
           </div>

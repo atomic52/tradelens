@@ -16,16 +16,16 @@ interface Props {
 
 export default function PeriodToggle({ value, onChange }: Props) {
   return (
-    <div className="inline-flex rounded-lg border bg-white overflow-hidden">
+    <div className="inline-flex rounded-lg bg-slate-100 p-0.5 gap-0.5">
       {OPTIONS.map(({ value: v, label }) => (
         <button
           key={v}
           onClick={() => onChange(v)}
           className={clsx(
-            "px-4 py-1.5 text-sm font-medium transition-colors",
+            "px-3 py-1.5 text-sm font-medium rounded-md transition-all",
             v === value
-              ? "bg-blue-600 text-white"
-              : "text-gray-600 hover:bg-gray-50"
+              ? "bg-white text-slate-900 shadow-sm"
+              : "text-slate-500 hover:text-slate-700"
           )}
         >
           {label}
