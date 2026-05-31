@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { useFirstAccount } from "@/hooks/useFirstAccount";
 import Dashboard from "@/pages/Dashboard";
 import ImportPage from "@/pages/ImportPage";
+import LandingPage from "@/pages/LandingPage";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
 import SettingsPage from "@/pages/SettingsPage";
@@ -16,9 +17,17 @@ const qc = new QueryClient({
 
 function PrivateRoute() {
   const { token, isLoading } = useAuth();
-  if (isLoading) return <div className="min-h-screen flex items-center justify-center text-gray-400">Loading…</div>;
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center text-gray-400">Loading...</div>;
   if (!token) return <Navigate to="/login" replace />;
   return <Outlet />;
+}
+
+// Redirect logged-in users away from public auth pages
+function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
+  const { token, isLoading } = useAuth();
+  if (isLoading) return null;
+  if (token) return <Navigate to="/dashboard" replace />;
+  return <>{children}</>;
 }
 
 function navClass({ isActive }: { isActive: boolean }) {
@@ -35,8 +44,8 @@ function Layout() {
   return (
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-white border-b px-6 py-3 flex items-center gap-1">
-        <span className="font-bold text-blue-700 mr-4 text-base">TradeLens</span>
-        <NavLink to="/" end className={navClass}>Dashboard</NavLink>
+        <NavLink to="/dashboard" className="font-bold text-blue-700 mr-4 text-base">TradeLens</NavLink>
+        <NavLink to="/dashboard" className={navClass}>Dashboard</NavLink>
         <NavLink to="/trades" className={navClass}>Trade Log</NavLink>
         <NavLink to="/import" className={navClass}>Import</NavLink>
         <NavLink to="/settings" className={navClass}>Settings</NavLink>
@@ -64,17 +73,24 @@ export default function App() {
       <QueryClientProvider client={qc}>
         <BrowserRouter>
           <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+            {/* Public */}
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<PublicOnlyRoute><LoginPage /></PublicOnlyRoute>} />
+            <Route path="/register" element={<PublicOnlyRoute><RegisterPage /></PublicOnlyRoute>} />
+
+            {/* Private */}
             <Route element={<PrivateRoute />}>
               <Route element={<Layout />}>
-                <Route path="/" element={<Dashboard />} />
+                <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/trades" element={<TradeLog />} />
                 <Route path="/trades/:id" element={<TradeDetail />} />
                 <Route path="/import" element={<ImportPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
               </Route>
             </Route>
+
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
       </QueryClientProvider>
