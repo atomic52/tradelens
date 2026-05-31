@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
+const inputCls = "w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent placeholder-slate-400 dark:placeholder-slate-500";
+
 export default function RegisterPage() {
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -30,7 +32,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex font-sans">
-      {/* ── Left panel ── */}
+      {/* ── Left panel (always dark) ── */}
       <div className="hidden lg:flex lg:w-1/2 bg-surface flex-col justify-between p-12">
         <Link to="/" className="font-bold text-white text-lg tracking-tight">
           Trade<span className="text-brand-400">Lens</span>
@@ -46,7 +48,7 @@ export default function RegisterPage() {
           <div className="space-y-3">
             {[
               "Import Robinhood PDFs and CSVs in seconds",
-              "16+ performance metrics on one dashboard",
+              "11+ performance metrics on one dashboard",
               "Journal every trade with notes and tags",
             ].map((item) => (
               <div key={item} className="flex items-center gap-3 text-slate-300 text-sm">
@@ -65,55 +67,55 @@ export default function RegisterPage() {
       </div>
 
       {/* ── Right panel ── */}
-      <div className="flex-1 flex flex-col justify-center items-center bg-white px-6 py-12">
+      <div className="flex-1 flex flex-col justify-center items-center bg-white dark:bg-slate-950 px-6 py-12">
         {/* Mobile wordmark */}
-        <Link to="/" className="lg:hidden font-bold text-slate-900 text-lg tracking-tight mb-8">
+        <Link to="/" className="lg:hidden font-bold text-slate-900 dark:text-slate-100 text-lg tracking-tight mb-8">
           Trade<span className="text-brand-500">Lens</span>
         </Link>
 
         <div className="w-full max-w-sm space-y-7">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Create your account</h1>
-            <p className="text-sm text-slate-500 mt-1">Free to start — no credit card needed.</p>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Create your account</h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Free to start — no credit card needed.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Email</label>
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent placeholder-slate-400"
+                className={inputCls}
                 placeholder="you@example.com"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Password</label>
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent placeholder-slate-400"
+                className={inputCls}
                 placeholder="Min. 8 characters"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Confirm password</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Confirm password</label>
               <input
                 type="password"
                 required
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
-                className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent placeholder-slate-400"
+                className={inputCls}
                 placeholder="••••••••"
               />
             </div>
 
             {error && (
-              <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2.5 text-sm text-red-700">
+              <div className="rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 px-3 py-2.5 text-sm text-red-700 dark:text-red-300">
                 {error}
               </div>
             )}
@@ -127,9 +129,9 @@ export default function RegisterPage() {
             </button>
           </form>
 
-          <p className="text-sm text-center text-slate-500">
+          <p className="text-sm text-center text-slate-500 dark:text-slate-400">
             Already have an account?{" "}
-            <Link to="/login" className="text-brand-600 hover:text-brand-700 font-medium">
+            <Link to="/login" className="text-brand-600 hover:text-brand-700 dark:hover:text-brand-400 font-medium">
               Sign in
             </Link>
           </p>

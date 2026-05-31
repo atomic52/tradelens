@@ -24,12 +24,12 @@ const columns = [
   }),
   col.accessor("asset_class", {
     header: "Type",
-    cell: (i) => <span className="text-xs text-gray-500 capitalize">{i.getValue()}</span>,
+    cell: (i) => <span className="text-xs text-slate-500 dark:text-slate-400 capitalize">{i.getValue()}</span>,
   }),
   col.accessor("direction", {
     header: "Dir",
     cell: (i) => (
-      <span className={clsx("text-xs font-medium", i.getValue() === "long" ? "text-green-600" : "text-red-500")}>
+      <span className={clsx("text-xs font-medium", i.getValue() === "long" ? "text-green-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400")}>
         {i.getValue().toUpperCase()}
       </span>
     ),
@@ -57,7 +57,7 @@ const columns = [
       const v = i.getValue();
       if (v == null) return "—";
       return (
-        <span className={clsx("font-medium tabular-nums", Number(v) >= 0 ? "text-green-600" : "text-red-500")}>
+        <span className={clsx("font-medium tabular-nums", Number(v) >= 0 ? "text-green-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400")}>
           {Number(v) >= 0 ? "+" : ""}${Number(v).toFixed(2)}
         </span>
       );
@@ -68,7 +68,7 @@ const columns = [
     cell: (i) =>
       i.getValue()
         ? i.getValue()!.split(",").map((t) => (
-            <span key={t} className="inline-block bg-blue-50 text-blue-700 text-xs px-1.5 py-0.5 rounded mr-1">
+            <span key={t} className="inline-block bg-brand-50 dark:bg-brand-950 text-brand-700 dark:text-brand-300 text-xs px-1.5 py-0.5 rounded mr-1">
               {t.trim()}
             </span>
           ))
@@ -97,20 +97,22 @@ export default function TradeLog() {
     onSortingChange: setSorting,
   });
 
-  if (accountLoading || isLoading) return <p className="text-gray-400 py-8 text-center">Loading…</p>;
+  if (accountLoading || isLoading) return <p className="text-slate-400 dark:text-slate-500 py-8 text-center">Loading…</p>;
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-gray-900">Trade Log</h1>
-        <div className="inline-flex rounded-lg border bg-white overflow-hidden text-sm">
+        <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Trade Log</h1>
+        <div className="inline-flex rounded-lg border dark:border-slate-700 bg-white dark:bg-slate-900 overflow-hidden text-sm">
           {(["all", "closed", "open"] as const).map((s) => (
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
               className={clsx(
                 "px-3 py-1.5 capitalize transition-colors",
-                s === statusFilter ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-gray-50"
+                s === statusFilter
+                  ? "bg-brand-600 text-white"
+                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
               )}
             >
               {s}
@@ -119,16 +121,16 @@ export default function TradeLog() {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border bg-white">
+      <div className="overflow-x-auto rounded-lg border dark:border-slate-800 bg-white dark:bg-slate-900">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b">
+          <thead className="bg-slate-50 dark:bg-slate-800 border-b dark:border-slate-700">
             {table.getHeaderGroups().map((hg) => (
               <tr key={hg.id}>
                 {hg.headers.map((h) => (
                   <th
                     key={h.id}
                     onClick={h.column.getToggleSortingHandler()}
-                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide cursor-pointer select-none whitespace-nowrap"
+                    className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide cursor-pointer select-none whitespace-nowrap"
                   >
                     {flexRender(h.column.columnDef.header, h.getContext())}
                     {h.column.getIsSorted() === "asc" ? " ↑" : h.column.getIsSorted() === "desc" ? " ↓" : ""}
@@ -137,11 +139,11 @@ export default function TradeLog() {
               </tr>
             ))}
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-800 dark:text-slate-200">
             {table.getRowModel().rows.map((row) => (
               <tr
                 key={row.id}
-                className="hover:bg-gray-50 cursor-pointer"
+                className="hover:bg-slate-50 dark:hover:bg-slate-800/60 cursor-pointer transition-colors"
                 onClick={() => navigate(`/trades/${row.original.id}`)}
               >
                 {row.getVisibleCells().map((cell) => (
@@ -154,10 +156,10 @@ export default function TradeLog() {
           </tbody>
         </table>
         {data.length === 0 && (
-          <p className="text-center text-gray-400 py-12 text-sm">No trades found.</p>
+          <p className="text-center text-slate-400 dark:text-slate-500 py-12 text-sm">No trades found.</p>
         )}
       </div>
-      <p className="text-xs text-gray-400">{data.length} trade{data.length !== 1 ? "s" : ""}</p>
+      <p className="text-xs text-slate-400 dark:text-slate-500">{data.length} trade{data.length !== 1 ? "s" : ""}</p>
     </div>
   );
 }

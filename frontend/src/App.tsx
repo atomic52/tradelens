@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, NavLink, Outlet, Route, Routes } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { AccountProvider, useAccount } from "@/contexts/AccountContext";
+import { ThemeProvider, useTheme } from "@/contexts/ThemeContext";
 import Dashboard from "@/pages/Dashboard";
 import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
 import ImportPage from "@/pages/ImportPage";
@@ -34,8 +35,34 @@ function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
 
 function navClass({ isActive }: { isActive: boolean }) {
   return `px-3 py-2 rounded text-sm font-medium transition-colors ${
-    isActive ? "bg-brand-50 text-brand-700" : "text-slate-600 hover:bg-slate-100"
+    isActive
+      ? "bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300"
+      : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
   }`;
+}
+
+function ThemeToggle() {
+  const { theme, toggle } = useTheme();
+  return (
+    <button
+      onClick={toggle}
+      aria-label="Toggle dark mode"
+      className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors"
+    >
+      {theme === "dark" ? (
+        /* Sun icon */
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <circle cx="12" cy="12" r="4" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+        </svg>
+      ) : (
+        /* Moon icon */
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+        </svg>
+      )}
+    </button>
+  );
 }
 
 function AccountSwitcher() {
@@ -69,7 +96,7 @@ function AccountSwitcher() {
     <div ref={ref} className="relative hidden md:block">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-1.5 text-sm font-medium text-slate-700 px-2.5 py-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+        className="flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-300 px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
       >
         <span className="w-2 h-2 rounded-full bg-brand-500 flex-shrink-0" />
         {current?.name ?? "Select account"}
@@ -79,15 +106,15 @@ function AccountSwitcher() {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-1 w-52 bg-white border border-slate-200 rounded-xl shadow-lg py-1 z-50">
+        <div className="absolute right-0 mt-1 w-52 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg py-1 z-50">
           {accounts.map((a) => (
             <button
               key={a.id}
               onClick={() => { setAccountId(a.id); setOpen(false); }}
-              className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left hover:bg-slate-50 transition-colors"
+              className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
             >
-              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${a.id === accountId ? "bg-brand-500" : "bg-slate-200"}`} />
-              <span className={`flex-1 truncate ${a.id === accountId ? "font-semibold text-slate-900" : "text-slate-600"}`}>
+              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${a.id === accountId ? "bg-brand-500" : "bg-slate-200 dark:bg-slate-600"}`} />
+              <span className={`flex-1 truncate ${a.id === accountId ? "font-semibold text-slate-900 dark:text-slate-100" : "text-slate-600 dark:text-slate-400"}`}>
                 {a.name}
               </span>
               {a.id === accountId && (
@@ -107,9 +134,9 @@ function Layout() {
   const { user, logout } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white border-b px-6 py-3 flex items-center gap-1">
-        <NavLink to="/dashboard" className="font-bold text-slate-900 mr-4 text-base tracking-tight">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950">
+      <nav className="bg-white dark:bg-slate-900 border-b dark:border-slate-800 px-6 py-3 flex items-center gap-1">
+        <NavLink to="/dashboard" className="font-bold text-slate-900 dark:text-slate-100 mr-4 text-base tracking-tight">
           Trade<span className="text-brand-500">Lens</span>
         </NavLink>
         <NavLink to="/dashboard" className={navClass}>Dashboard</NavLink>
@@ -118,10 +145,11 @@ function Layout() {
         <NavLink to="/settings" className={navClass}>Settings</NavLink>
         <div className="ml-auto flex items-center gap-3">
           <AccountSwitcher />
-          <span className="hidden md:inline text-sm text-gray-400">{user?.email}</span>
+          <span className="hidden md:inline text-sm text-gray-400 dark:text-slate-500">{user?.email}</span>
+          <ThemeToggle />
           <button
             onClick={() => logout()}
-            className="px-3 py-1.5 rounded border text-gray-600 hover:bg-gray-50 text-xs"
+            className="px-3 py-1.5 rounded border dark:border-slate-700 text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 text-xs transition-colors"
           >
             Sign out
           </button>
@@ -136,6 +164,7 @@ function Layout() {
 
 export default function App() {
   return (
+    <ThemeProvider>
     <AuthProvider>
       <QueryClientProvider client={qc}>
         <BrowserRouter>
@@ -168,5 +197,6 @@ export default function App() {
         </BrowserRouter>
       </QueryClientProvider>
     </AuthProvider>
+    </ThemeProvider>
   );
 }

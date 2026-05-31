@@ -80,13 +80,13 @@ export default function Dashboard() {
   });
 
   if (accountLoading) {
-    return <div className="text-slate-400 py-12 text-center">Loading...</div>;
+    return <div className="text-slate-400 dark:text-slate-500 py-12 text-center">Loading...</div>;
   }
 
   if (!accountId) {
     return (
       <div className="text-center py-20 space-y-3">
-        <p className="text-slate-500">No accounts yet.</p>
+        <p className="text-slate-500 dark:text-slate-400">No accounts yet.</p>
         <Link to="/settings" className="inline-block bg-brand-500 text-white px-4 py-2 rounded text-sm hover:bg-brand-600">
           Create an account
         </Link>
@@ -101,13 +101,13 @@ export default function Dashboard() {
     <div className="space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
+        <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Dashboard</h1>
         <PeriodToggle value={period} onChange={setPeriod} />
       </div>
 
       {noTrades ? (
         <div className="text-center py-20 space-y-3">
-          <p className="text-slate-500 text-sm">No closed trades for this period.</p>
+          <p className="text-slate-500 dark:text-slate-400 text-sm">No closed trades for this period.</p>
           <Link to="/import" className="inline-block text-brand-600 text-sm hover:underline">
             Import a statement →
           </Link>
@@ -181,10 +181,10 @@ export default function Dashboard() {
 
           {/* Charts: top row = Daily + Symbol; bottom row = Cumulative full width */}
           <div className="grid md:grid-cols-2 gap-4">
-            <div className="bg-white rounded-xl border border-slate-100 p-5">
+            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 p-5">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-semibold text-slate-700">Daily P&L</h2>
-                <span className="text-xs text-slate-400">
+                <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300">Daily P&L</h2>
+                <span className="text-xs text-slate-400 dark:text-slate-500">
                   {daily.length > 0 ? `${daily.length} trading days` : ""}
                 </span>
               </div>
@@ -193,19 +193,19 @@ export default function Dashboard() {
                 : <p className="text-sm text-slate-400 py-16 text-center">No data for this period</p>}
             </div>
 
-            <div className="bg-white rounded-xl border border-slate-100 p-5">
+            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 p-5">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-semibold text-slate-700">P&L by Symbol</h2>
-                <span className="text-xs text-slate-400">{bySymbol.length} symbols</span>
+                <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300">P&L by Symbol</h2>
+                <span className="text-xs text-slate-400 dark:text-slate-500">{bySymbol.length} symbols</span>
               </div>
               <SymbolPnlTable data={bySymbol} />
             </div>
 
-            <div className="bg-white rounded-xl border border-slate-100 p-5 md:col-span-2">
+            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 p-5 md:col-span-2">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-semibold text-slate-700">Cumulative P&L</h2>
+                <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300">Cumulative P&L</h2>
                 {cumulative.length > 0 && s && (
-                  <span className={`text-xs font-semibold tabular-nums ${s.total_pnl >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+                  <span className={`text-xs font-semibold tabular-nums ${s.total_pnl >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400"}`}>
                     {fmt(s.total_pnl)}
                   </span>
                 )}

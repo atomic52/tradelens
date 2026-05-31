@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { auth as authApi } from "@/services/api";
 
+const inputCls = "w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent placeholder-slate-400 dark:placeholder-slate-500";
+
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
@@ -25,7 +27,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="min-h-screen flex font-sans">
-      {/* Left panel */}
+      {/* Left panel (always dark) */}
       <div className="hidden lg:flex lg:w-1/2 bg-surface flex-col justify-between p-12">
         <Link to="/" className="font-bold text-white text-lg tracking-tight">
           Trade<span className="text-brand-400">Lens</span>
@@ -45,29 +47,29 @@ export default function ForgotPasswordPage() {
       </div>
 
       {/* Right panel */}
-      <div className="flex-1 flex flex-col justify-center items-center bg-white px-6 py-12">
-        <Link to="/" className="lg:hidden font-bold text-slate-900 text-lg tracking-tight mb-8">
+      <div className="flex-1 flex flex-col justify-center items-center bg-white dark:bg-slate-950 px-6 py-12">
+        <Link to="/" className="lg:hidden font-bold text-slate-900 dark:text-slate-100 text-lg tracking-tight mb-8">
           Trade<span className="text-brand-500">Lens</span>
         </Link>
 
         <div className="w-full max-w-sm space-y-7">
           {sent ? (
             <div className="space-y-4">
-              <div className="w-12 h-12 rounded-full bg-green-50 border border-green-200 flex items-center justify-center">
-                <svg className="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <div className="w-12 h-12 rounded-full bg-green-50 dark:bg-emerald-950/30 border border-green-200 dark:border-emerald-800 flex items-center justify-center">
+                <svg className="w-6 h-6 text-green-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Check your email</h1>
-                <p className="text-sm text-slate-500 mt-2 leading-relaxed">
-                  If an account exists for <span className="font-medium text-slate-700">{email}</span>,
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Check your email</h1>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
+                  If an account exists for <span className="font-medium text-slate-700 dark:text-slate-300">{email}</span>,
                   you'll receive a password reset link shortly.
                 </p>
               </div>
               <Link
                 to="/login"
-                className="block text-center text-sm text-brand-600 hover:text-brand-700 font-medium"
+                className="block text-center text-sm text-brand-600 hover:text-brand-700 dark:hover:text-brand-400 font-medium"
               >
                 ← Back to sign in
               </Link>
@@ -75,25 +77,25 @@ export default function ForgotPasswordPage() {
           ) : (
             <>
               <div>
-                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Reset your password</h1>
-                <p className="text-sm text-slate-500 mt-1">We'll send a reset link to your email.</p>
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Reset your password</h1>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">We'll send a reset link to your email.</p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Email</label>
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent placeholder-slate-400"
+                    className={inputCls}
                     placeholder="you@example.com"
                   />
                 </div>
 
                 {error && (
-                  <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2.5 text-sm text-red-700">
+                  <div className="rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 px-3 py-2.5 text-sm text-red-700 dark:text-red-300">
                     {error}
                   </div>
                 )}
@@ -107,9 +109,9 @@ export default function ForgotPasswordPage() {
                 </button>
               </form>
 
-              <p className="text-sm text-center text-slate-500">
+              <p className="text-sm text-center text-slate-500 dark:text-slate-400">
                 Remembered it?{" "}
-                <Link to="/login" className="text-brand-600 hover:text-brand-700 font-medium">
+                <Link to="/login" className="text-brand-600 hover:text-brand-700 dark:hover:text-brand-400 font-medium">
                   Sign in
                 </Link>
               </p>

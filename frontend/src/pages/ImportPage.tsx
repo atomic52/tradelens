@@ -57,13 +57,13 @@ function ImportCard({ title, description, instructions, accept, onImport, onSucc
   };
 
   return (
-    <div className="bg-white rounded-lg border p-6 space-y-4">
+    <div className="bg-white dark:bg-slate-900 rounded-lg border dark:border-slate-800 p-6 space-y-4">
       <div>
-        <h2 className="text-base font-semibold text-gray-900">{title}</h2>
-        <p className="text-sm text-gray-500 mt-0.5">{description}</p>
+        <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{description}</p>
       </div>
 
-      <p className="text-xs text-gray-400 bg-gray-50 rounded p-3 leading-relaxed">{instructions}</p>
+      <p className="text-xs text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800 rounded p-3 leading-relaxed">{instructions}</p>
 
       <div className="space-y-3">
         <input
@@ -71,36 +71,36 @@ function ImportCard({ title, description, instructions, accept, onImport, onSucc
           type="file"
           accept={accept}
           onChange={(e) => setHasFile(!!e.target.files?.[0])}
-          className="block w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+          className="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:bg-brand-50 dark:file:bg-brand-950 file:text-brand-700 dark:file:text-brand-300 hover:file:bg-brand-100 dark:hover:file:bg-brand-900"
         />
         <button
           type="button"
           onClick={handleImport}
           disabled={mutation.isPending || !hasFile}
-          className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-brand-600 text-white px-4 py-2 rounded text-sm hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {mutation.isPending ? "Importing..." : "Import"}
         </button>
       </div>
 
       {duplicate && (
-        <div className="rounded-md bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
+        <div className="rounded-md bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 px-4 py-3 text-sm text-amber-800 dark:text-amber-300">
           This file has already been imported. Delete existing trades first if you want to re-import.
         </div>
       )}
       {errorMsg === "upgrade" && (
-        <div className="rounded-md bg-orange-50 border border-orange-200 px-4 py-3 text-sm text-orange-800">
+        <div className="rounded-md bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800 px-4 py-3 text-sm text-orange-800 dark:text-orange-300">
           <p className="font-medium">Free tier limit reached</p>
           <p className="mt-0.5">You've used all 5 free imports. Upgrade to Pro for unlimited imports.</p>
         </div>
       )}
       {errorMsg && errorMsg !== "upgrade" && (
-        <div className="rounded-md bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+        <div className="rounded-md bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 px-4 py-3 text-sm text-red-700 dark:text-red-300">
           {errorMsg}
         </div>
       )}
       {result && (
-        <div className="rounded-md bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700">
+        <div className="rounded-md bg-green-50 dark:bg-emerald-950/30 border border-green-200 dark:border-emerald-800 px-4 py-3 text-sm text-green-700 dark:text-emerald-300">
           Imported {result.trades_imported} trades ({result.executions_imported} executions).
         </div>
       )}
@@ -129,8 +129,8 @@ export default function ImportPage() {
 
   if (!accountId) {
     return (
-      <div className="text-center py-20 text-gray-500 text-sm">
-        Create an account in <a href="/settings" className="text-blue-600 hover:underline">Settings</a> before importing.
+      <div className="text-center py-20 text-slate-500 dark:text-slate-400 text-sm">
+        Create an account in <a href="/settings" className="text-brand-600 hover:underline">Settings</a> before importing.
       </div>
     );
   }
@@ -138,21 +138,21 @@ export default function ImportPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-gray-900">Import</h1>
+        <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Import</h1>
         {usage && (
           <div className={`text-sm px-3 py-1.5 rounded-full border ${
             usage.used >= usage.limit
-              ? "bg-orange-50 border-orange-200 text-orange-700"
+              ? "bg-orange-50 dark:bg-orange-950/30 border-orange-200 dark:border-orange-800 text-orange-700 dark:text-orange-300"
               : usage.used >= usage.limit - 1
-              ? "bg-yellow-50 border-yellow-200 text-yellow-700"
-              : "bg-gray-50 border-gray-200 text-gray-500"
+              ? "bg-yellow-50 dark:bg-yellow-950/30 border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-300"
+              : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400"
           }`}>
             {usage.used} / {usage.limit} free imports used
           </div>
         )}
       </div>
       {usage && usage.used >= usage.limit && (
-        <div className="rounded-md bg-orange-50 border border-orange-200 px-4 py-3 text-sm text-orange-800">
+        <div className="rounded-md bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800 px-4 py-3 text-sm text-orange-800 dark:text-orange-300">
           <span className="font-medium">Free tier limit reached.</span> You've used all {usage.limit} free imports. Upgrade to Pro for unlimited imports.
         </div>
       )}
