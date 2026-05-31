@@ -179,8 +179,8 @@ export default function Dashboard() {
             <StatCard label="Worst Loss Streak" value={s?.max_loss_streak ?? "—"} sub="consecutive losses" />
           </div>
 
-          {/* Charts */}
-          <div className="grid md:grid-cols-2 gap-4">
+          {/* Charts — left col: Daily + Symbol stacked; right col: Cumulative spanning both rows */}
+          <div className="grid md:grid-cols-2 md:grid-rows-[auto_auto] gap-4">
             <div className="bg-white rounded-xl border border-slate-100 p-5">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-sm font-semibold text-slate-700">Daily P&L</h2>
@@ -193,7 +193,7 @@ export default function Dashboard() {
                 : <p className="text-sm text-slate-400 py-16 text-center">No data for this period</p>}
             </div>
 
-            <div className="bg-white rounded-xl border border-slate-100 p-5">
+            <div className="bg-white rounded-xl border border-slate-100 p-5 md:row-span-2 md:flex md:flex-col">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-sm font-semibold text-slate-700">Cumulative P&L</h2>
                 {cumulative.length > 0 && s && (
@@ -202,12 +202,14 @@ export default function Dashboard() {
                   </span>
                 )}
               </div>
-              {cumulative.length > 0
-                ? <CumulativeChart data={cumulative} />
-                : <p className="text-sm text-slate-400 py-16 text-center">No data for this period</p>}
+              <div className="flex-1 min-h-0">
+                {cumulative.length > 0
+                  ? <CumulativeChart data={cumulative} />
+                  : <p className="text-sm text-slate-400 py-16 text-center">No data for this period</p>}
+              </div>
             </div>
 
-            <div className="bg-white rounded-xl border border-slate-100 p-5 md:col-span-2">
+            <div className="bg-white rounded-xl border border-slate-100 p-5">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-sm font-semibold text-slate-700">P&L by Symbol</h2>
                 <span className="text-xs text-slate-400">{bySymbol.length} symbols</span>
