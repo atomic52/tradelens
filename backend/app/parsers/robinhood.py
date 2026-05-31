@@ -6,12 +6,11 @@ Expected columns: Activity Date, Process Date, Settle Date, Instrument, Descript
                   Trans Code, Quantity, Price, Amount
 """
 
+import csv
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
 from io import StringIO
-
-import pandas as pd
 
 
 @dataclass
@@ -38,25 +37,26 @@ _TRANS_CODE_MAP = {
 
 
 def parse_robinhood_csv(content: str) -> list[RawExecution]:
-    df = pd.read_csv(StringIO(content))
-    df.columns = df.columns.str.strip()
+    reader = csv.DictReader(StringIO(content))
+    # Normalize column names (strip whitespace)
+    reader.fieldnames = [f.strip() for f in (reader.fieldnames or [])]
 
     executions: list[RawExecution] = []
 
-    for _, row in df.iterrows():
-        trans_code = str(row.get("Trans Code", "")).strip()
+    for row in reader:
+        trans_code = row.get("Trans Code", "").strip()
         if trans_code not in _TRANS_CODE_MAP:
             continue
 
         side, asset_class = _TRANS_CODE_MAP[trans_code]
 
         try:
-            executed_at = pd.to_datetime(row["Activity Date"]).to_pydatetime()
-            symbol = str(row["Instrument"]).strip().upper()
-            quantity = Decimal(str(row["Quantity"])).copy_abs()
-            price_raw = str(row["Price"]).replace("$", "").replace(",", "").strip()
+            executed_at = datetime.strptime(row["Activity Date"].strip(), "%m/%d/%Y")
+            symbol = row["Instrument"].strip().upper()
+            quantity = Decimal(str(row["Quantity"]).strip()).copy_abs()
+            price_raw = row["Price"].replace("$", "").replace(",", "").strip()
             price = Decimal(price_raw) if price_raw else Decimal("0")
-            fees = Decimal("0")  # Robinhood doesn't charge commissions; adjust if needed
+            fees = Decimal("0")
         except (KeyError, ValueError):
             continue
 
@@ -72,6 +72,5 @@ def parse_robinhood_csv(content: str) -> list[RawExecution]:
             )
         )
 
-    # Sort oldest-first so trade matching works correctly
     executions.sort(key=lambda e: e.executed_at)
     return executions
