@@ -11,12 +11,12 @@ import type {
   User,
 } from "@/types";
 
-// In production set VITE_API_BASE_URL=https://your-app.fly.dev/api/v1
-// Locally this falls back to /api/v1 which Vite proxies to localhost:8000
+// Requests always go to /api/v1 — Vercel proxies to Fly in production,
+// Vite proxies to localhost:8000 in local dev. Same-origin in both cases.
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? "/api/v1",
-  withCredentials: true, // send httpOnly cookie on every request
-  timeout: 10_000,       // 10s — prevents hanging on Fly cold starts
+  baseURL: "/api/v1",
+  withCredentials: true, // needed for httpOnly cookie
+  timeout: 10_000,
 });
 
 // No Authorization header needed — the JWT lives in an httpOnly cookie
