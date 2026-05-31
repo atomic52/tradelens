@@ -17,7 +17,7 @@ export default function StatCard({ label, value, sub, colorize, size = "default"
 
   return (
     <div className={clsx(
-      "rounded-xl border p-4 flex flex-col justify-between",
+      "rounded-xl border p-4 flex flex-col",
       accent ? "bg-slate-900 border-slate-800" : "bg-white border-slate-100",
     )}>
       <p className={clsx(
@@ -33,11 +33,9 @@ export default function StatCard({ label, value, sub, colorize, size = "default"
       )}>
         {value}
       </p>
-      {sub && (
-        <p className={clsx("text-xs mt-1.5", accent ? "text-slate-500" : "text-slate-400")}>
-          {sub}
-        </p>
-      )}
+      <p className={clsx("text-xs mt-1.5 min-h-[1rem]", accent ? "text-slate-500" : "text-slate-400")}>
+        {sub ?? ""}
+      </p>
     </div>
   );
 }
