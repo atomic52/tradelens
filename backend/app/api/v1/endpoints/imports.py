@@ -3,12 +3,13 @@ from collections import defaultdict
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.auth import current_active_user
 from app.db.base import get_async_session
 from app.models.account import Account
+from app.models.import_log import ImportLog
 from app.models.user import User
 from app.parsers.rh_futures_pdf import parse_rh_futures_pdf
 from app.parsers.rh_nonfutures_pdf import parse_rh_nonfutures_pdf
@@ -18,6 +19,27 @@ from app.services.import_service import check_duplicate, persist_trades
 from app.services.trade_matcher import match_trades
 
 router = APIRouter()
+
+FREE_TIER_IMPORT_LIMIT = 5
+
+
+async def _check_import_limit(user: User, session: AsyncSession) -> None:
+    """Raise 402 if the user has reached the free-tier import limit."""
+    # Count all imports across every account belonging to this user
+    result = await session.execute(
+        select(func.count(ImportLog.id))
+        .join(Account, ImportLog.account_id == Account.id)
+        .where(Account.user_id == user.id)
+    )
+    total = result.scalar_one()
+    if total >= FREE_TIER_IMPORT_LIMIT:
+        raise HTTPException(
+            status_code=402,
+            detail=(
+                f"Free tier limit reached ({FREE_TIER_IMPORT_LIMIT} imports). "
+                "Upgrade to Pro for unlimited imports."
+            ),
+        )
 
 
 async def _get_account_or_404(
@@ -48,6 +70,21 @@ def _match_by_symbol(raw_executions: list[RawExecution]) -> list:
     return all_matched
 
 
+@router.get("/imports/usage")
+async def get_import_usage(
+    session: AsyncSession = Depends(get_async_session),
+    user: User = Depends(current_active_user),
+):
+    """Return how many imports the user has used and the free-tier limit."""
+    result = await session.execute(
+        select(func.count(ImportLog.id))
+        .join(Account, ImportLog.account_id == Account.id)
+        .where(Account.user_id == user.id)
+    )
+    used = result.scalar_one()
+    return {"used": used, "limit": FREE_TIER_IMPORT_LIMIT}
+
+
 @router.post("/accounts/{account_id}/import/robinhood-csv")
 async def import_robinhood_csv(
     account_id: UUID,
@@ -55,6 +92,7 @@ async def import_robinhood_csv(
     session: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
 ):
+    await _check_import_limit(user, session)
     await _get_account_or_404(account_id, user.id, session)
     content_bytes = await file.read()
     await check_duplicate(account_id, content_bytes, "robinhood-csv", session)
@@ -74,6 +112,7 @@ async def import_futures_pdf(
     session: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
 ):
+    await _check_import_limit(user, session)
     await _get_account_or_404(account_id, user.id, session)
     content_bytes = await file.read()
     await check_duplicate(account_id, content_bytes, "futures-pdf", session)
@@ -98,6 +137,7 @@ async def import_nonfutures_pdf(
     session: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
 ):
+    await _check_import_limit(user, session)
     await _get_account_or_404(account_id, user.id, session)
     content_bytes = await file.read()
     await check_duplicate(account_id, content_bytes, "nonfutures-pdf", session)

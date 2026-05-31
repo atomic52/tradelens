@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { imports as importsApi } from "@/services/api";
 import { useFirstAccount } from "@/hooks/useFirstAccount";
@@ -35,6 +35,9 @@ function ImportCard({ title, description, instructions, accept, onImport, onSucc
       if (status === 409) {
         setDuplicate(true);
         setErrorMsg(null);
+      } else if (status === 402) {
+        setDuplicate(false);
+        setErrorMsg("upgrade");
       } else {
         setDuplicate(false);
         setErrorMsg(detail || "Import failed. Check the file and try again.");
@@ -83,7 +86,13 @@ function ImportCard({ title, description, instructions, accept, onImport, onSucc
           This file has already been imported. Delete existing trades first if you want to re-import.
         </div>
       )}
-      {errorMsg && (
+      {errorMsg === "upgrade" && (
+        <div className="rounded-md bg-orange-50 border border-orange-200 px-4 py-3 text-sm text-orange-800">
+          <p className="font-medium">Free tier limit reached</p>
+          <p className="mt-0.5">You've used all 5 free imports. Upgrade to Pro for unlimited imports.</p>
+        </div>
+      )}
+      {errorMsg && errorMsg !== "upgrade" && (
         <div className="rounded-md bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
           {errorMsg}
         </div>
@@ -101,7 +110,13 @@ export default function ImportPage() {
   const { accountId } = useFirstAccount();
   const qc = useQueryClient();
 
+  const { data: usage } = useQuery({
+    queryKey: ["import-usage"],
+    queryFn: importsApi.usage,
+  });
+
   const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ["import-usage"] });
     qc.invalidateQueries({ queryKey: ["trades"] });
     qc.invalidateQueries({ queryKey: ["summary"] });
     qc.invalidateQueries({ queryKey: ["pnl-daily"] });
@@ -120,7 +135,25 @@ export default function ImportPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-semibold text-gray-900">Import</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold text-gray-900">Import</h1>
+        {usage && (
+          <div className={`text-sm px-3 py-1.5 rounded-full border ${
+            usage.used >= usage.limit
+              ? "bg-orange-50 border-orange-200 text-orange-700"
+              : usage.used >= usage.limit - 1
+              ? "bg-yellow-50 border-yellow-200 text-yellow-700"
+              : "bg-gray-50 border-gray-200 text-gray-500"
+          }`}>
+            {usage.used} / {usage.limit} free imports used
+          </div>
+        )}
+      </div>
+      {usage && usage.used >= usage.limit && (
+        <div className="rounded-md bg-orange-50 border border-orange-200 px-4 py-3 text-sm text-orange-800">
+          <span className="font-medium">Free tier limit reached.</span> You've used all {usage.limit} free imports. Upgrade to Pro for unlimited imports.
+        </div>
+      )}
       <div className="grid md:grid-cols-3 gap-6">
         <ImportCard
           title="Robinhood CSV"

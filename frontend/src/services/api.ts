@@ -76,6 +76,8 @@ export const imports = {
     form.append("file", file);
     return api.post<ImportResult>(`/accounts/${accountId}/import/nonfutures-pdf`, form).then((r) => r.data);
   },
+  usage: () =>
+    api.get<{ used: number; limit: number }>("/imports/usage").then((r) => r.data),
 };
 
 export const analytics = {
