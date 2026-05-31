@@ -2,7 +2,17 @@
 
 A trade journal and analytics platform for active traders. Import your Robinhood statements, visualise P&L, and track performance metrics.
 
-## Quick Start (local)
+## Live deployment
+
+| Service | URL |
+|---|---|
+| Frontend | https://tradelens-brown.vercel.app |
+| Backend API | https://tradelens-api.fly.dev |
+| API docs | https://tradelens-api.fly.dev/docs |
+
+---
+
+## Quick start (local)
 
 ### Prerequisites
 
@@ -16,7 +26,7 @@ A trade journal and analytics platform for active traders. Import your Robinhood
 ./dev.sh
 ```
 
-That's it. The script will:
+The script will:
 
 1. Start PostgreSQL in Docker
 2. Run Alembic migrations
@@ -68,6 +78,16 @@ npm run dev
 
 ---
 
+## Deploying to production
+
+The production stack is **Vercel (frontend) + Fly.io (backend) + Neon (database)** — all free tier with a credit card on file.
+
+See the service-specific guides:
+- **[`backend/README.md`](backend/README.md)** — Fly.io deploy, environment variables, migrations
+- **[`frontend/README.md`](frontend/README.md)** — Vercel deploy, environment variables
+
+---
+
 ## Importing trades
 
 TradeLens supports three Robinhood import formats:
@@ -80,30 +100,23 @@ TradeLens supports three Robinhood import formats:
 
 Upload via the **Import** page. Duplicate uploads are detected automatically (SHA-256 deduplication).
 
+Free tier allows **5 imports total** per account.
+
 ---
 
 ## Project structure
 
 ```
-backend/
-  app/
-    api/v1/endpoints/   # FastAPI route handlers (accounts, trades, imports, analytics)
-    models/             # SQLAlchemy ORM models
-    schemas/            # Pydantic request/response schemas
-    services/           # Trade matching (FIFO), contract specs, import logic
-    parsers/            # PDF/CSV parsers (rh_futures_pdf, rh_nonfutures_pdf, robinhood)
-    core/               # Config, JWT auth (fastapi-users)
-    db/                 # Async DB engine + session
-
-frontend/
-  src/
-    pages/              # Dashboard, TradeLog, TradeDetail, ImportPage, SettingsPage
-    components/         # Charts (Daily P&L, Cumulative, Hourly, Symbol) + UI primitives
-    contexts/           # AuthContext (JWT)
-    hooks/              # useFirstAccount
-    services/api.ts     # Axios client with Bearer auth + 401 redirect
-    types/index.ts      # Shared TypeScript types
+backend/          # FastAPI + SQLAlchemy + Alembic
+frontend/         # React 18 + Vite + TailwindCSS
+docker-compose.yml  # Local PostgreSQL
+fly.toml          # Fly.io backend config
+dev.sh            # One-command local startup
 ```
+
+See the sub-READMEs for full internal structure.
+
+---
 
 ## Adding a new broker
 
@@ -111,12 +124,15 @@ frontend/
 2. Add a route in `backend/app/api/v1/endpoints/imports.py`
 3. Add an import card in `frontend/src/pages/ImportPage.tsx`
 
+---
+
 ## Tech stack
 
 | Layer | Stack |
 |---|---|
 | Backend | Python 3.12, FastAPI, SQLAlchemy 2 (async), Alembic, fastapi-users |
-| Database | PostgreSQL 16 |
+| Database | PostgreSQL (Neon in prod, Docker locally) |
 | Frontend | React 18, TypeScript, Vite, TailwindCSS, TanStack Query/Table, Recharts |
 | Auth | JWT (Bearer token, localStorage) |
 | PDF parsing | pdfplumber |
+| Hosting | Vercel (frontend), Fly.io (backend), Neon (database) |
