@@ -17,7 +17,7 @@ const features = [
       </svg>
     ),
     title: "Deep Analytics",
-    desc: "Win rate, profit factor, expectancy, max drawdown, streaks, and 16+ metrics — filterable by today, week, month, YTD, or all-time.",
+    desc: "Win rate, profit factor, expectancy, max drawdown, streaks, and more — filterable by today, week, month, YTD, or all-time.",
   },
   {
     icon: (
@@ -162,7 +162,7 @@ export default function LandingPage() {
       <section className="bg-slate-900 border-b border-slate-800">
         <div className="max-w-6xl mx-auto px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           {[
-            { value: "16+",    label: "Performance metrics" },
+            { value: "11",     label: "Performance metrics" },
             { value: "3",      label: "Import formats" },
             { value: "FIFO",   label: "Trade matching" },
             { value: "Free",   label: "To get started" },
