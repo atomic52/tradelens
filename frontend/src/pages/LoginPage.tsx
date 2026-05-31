@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const justReset = searchParams.get("reset") === "1";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -73,6 +75,12 @@ export default function LoginPage() {
             <p className="text-sm text-slate-500 mt-1">Enter your email and password to continue.</p>
           </div>
 
+          {justReset && (
+            <div className="rounded-lg bg-green-50 border border-green-200 px-3 py-2.5 text-sm text-green-700">
+              Password reset successfully. Sign in with your new password.
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
@@ -102,6 +110,12 @@ export default function LoginPage() {
                 {error}
               </div>
             )}
+
+            <div className="text-right">
+              <Link to="/forgot-password" className="text-xs text-slate-400 hover:text-brand-600 transition-colors">
+                Forgot your password?
+              </Link>
+            </div>
 
             <button
               type="submit"

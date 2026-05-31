@@ -3,10 +3,12 @@ import { BrowserRouter, Navigate, NavLink, Outlet, Route, Routes } from "react-r
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { useFirstAccount } from "@/hooks/useFirstAccount";
 import Dashboard from "@/pages/Dashboard";
+import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
 import ImportPage from "@/pages/ImportPage";
 import LandingPage from "@/pages/LandingPage";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
+import ResetPasswordPage from "@/pages/ResetPasswordPage";
 import SettingsPage from "@/pages/SettingsPage";
 import TradeDetail from "@/pages/TradeDetail";
 import TradeLog from "@/pages/TradeLog";
@@ -79,6 +81,8 @@ export default function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<PublicOnlyRoute><LoginPage /></PublicOnlyRoute>} />
             <Route path="/register" element={<PublicOnlyRoute><RegisterPage /></PublicOnlyRoute>} />
+            <Route path="/forgot-password" element={<PublicOnlyRoute><ForgotPasswordPage /></PublicOnlyRoute>} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
 
             {/* Private */}
             <Route element={<PrivateRoute />}>

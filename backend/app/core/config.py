@@ -15,6 +15,11 @@ class Settings(BaseSettings):
     # Comma-separated string: CORS_ORIGINS=https://tradelens.vercel.app,http://localhost:5173
     cors_origins: str = "http://localhost:5173"
 
+    # Email (Resend) — required in production for password reset
+    resend_api_key: str = ""
+    from_email: str = "noreply@tradelens.app"
+    frontend_url: str = "http://localhost:5173"
+
     @property
     def cors_origins_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]

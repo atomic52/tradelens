@@ -1,6 +1,8 @@
+import logging
 import uuid
 from typing import AsyncGenerator
 
+import resend
 from fastapi import Depends
 from fastapi_users import BaseUserManager, FastAPIUsers, InvalidPasswordException, UUIDIDMixin
 from fastapi_users.authentication import (
@@ -25,6 +27,25 @@ async def get_user_db(
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     reset_password_token_secret = settings.secret_key
     verification_token_secret = settings.secret_key
+
+    async def on_after_forgot_password(self, user: User, token: str, request=None) -> None:
+        reset_url = f"{settings.frontend_url}/reset-password?token={token}"
+        if not settings.resend_api_key:
+            logging.warning("RESEND_API_KEY not set — password reset URL: %s", reset_url)
+            return
+        resend.api_key = settings.resend_api_key
+        resend.Emails.send({
+            "from": settings.from_email,
+            "to": user.email,
+            "subject": "Reset your TradeLens password",
+            "html": f"""
+                <p>Hi,</p>
+                <p>Click the link below to reset your TradeLens password.
+                   This link expires in 1 hour.</p>
+                <p><a href="{reset_url}">{reset_url}</a></p>
+                <p>If you didn't request a password reset, you can ignore this email.</p>
+            """,
+        })
 
     async def validate_password(self, password: str, user: User | None = None) -> None:  # type: ignore[override]
         if len(password) < 8:

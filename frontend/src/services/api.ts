@@ -51,6 +51,10 @@ export const auth = {
   register: (email: string, password: string) =>
     api.post<User>("/auth/register", { email, password }).then((r) => r.data),
   me: () => api.get<User>("/users/me").then((r) => r.data),
+  forgotPassword: (email: string) =>
+    api.post("/auth/forgot-password", { email }),
+  resetPassword: (token: string, password: string) =>
+    api.post("/auth/reset-password", { token, password }),
 };
 
 export const accounts = {

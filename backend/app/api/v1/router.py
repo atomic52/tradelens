@@ -17,6 +17,11 @@ router.include_router(
     prefix="/auth",
     tags=["auth"],
 )
+router.include_router(
+    fastapi_users.get_reset_password_router(),
+    prefix="/auth",
+    tags=["auth"],
+)
 
 # Only expose /users/me — not the admin GET/PATCH/DELETE /users/{id} routes
 router.include_router(
