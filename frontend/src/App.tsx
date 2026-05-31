@@ -32,7 +32,7 @@ function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
 
 function navClass({ isActive }: { isActive: boolean }) {
   return `px-3 py-2 rounded text-sm font-medium transition-colors ${
-    isActive ? "bg-blue-100 text-blue-700" : "text-gray-600 hover:bg-gray-100"
+    isActive ? "bg-brand-50 text-brand-700" : "text-slate-600 hover:bg-slate-100"
   }`;
 }
 
@@ -44,7 +44,9 @@ function Layout() {
   return (
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-white border-b px-6 py-3 flex items-center gap-1">
-        <NavLink to="/dashboard" className="font-bold text-blue-700 mr-4 text-base">TradeLens</NavLink>
+        <NavLink to="/dashboard" className="font-bold text-slate-900 mr-4 text-base tracking-tight">
+          Trade<span className="text-brand-500">Lens</span>
+        </NavLink>
         <NavLink to="/dashboard" className={navClass}>Dashboard</NavLink>
         <NavLink to="/trades" className={navClass}>Trade Log</NavLink>
         <NavLink to="/import" className={navClass}>Import</NavLink>
