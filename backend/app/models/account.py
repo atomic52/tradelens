@@ -20,3 +20,5 @@ class Account(Base):
     user = relationship("User", back_populates="accounts")
     executions = relationship("Execution", back_populates="account", cascade="all, delete-orphan")
     trades = relationship("Trade", back_populates="account", cascade="all, delete-orphan")
+    import_logs = relationship("ImportLog", cascade="all, delete-orphan",
+                               foreign_keys="ImportLog.account_id")
