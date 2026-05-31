@@ -336,7 +336,7 @@ export default function LandingPage() {
               Statements in.<br />Data out. Instantly.
             </h2>
             <p className="text-slate-400 leading-relaxed mb-8">
-              However you export from Robinhood, TradeLens can read it — trade history CSVs, futures statements, and monthly PDFs all parse automatically. Matches trades with FIFO accounting and handles duplicate detection too.
+              Works with all three Robinhood statement types — Trade History CSVs, Futures & Event Contracts PDFs, and Individual Investing Statements.
             </p>
             <ul className="space-y-3">
               {[
