@@ -11,7 +11,11 @@ import type {
   User,
 } from "@/types";
 
-const api = axios.create({ baseURL: "/api/v1" });
+// In production set VITE_API_BASE_URL=https://your-app.fly.dev/api/v1
+// Locally this falls back to /api/v1 which Vite proxies to localhost:8000
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL ?? "/api/v1",
+});
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");

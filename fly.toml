@@ -1,0 +1,23 @@
+# fly.toml — TradeLens backend
+# Deploy with: fly deploy (from repo root)
+
+app = "tradelens-api"   # change to your fly app name after `fly launch`
+primary_region = "ord"  # Chicago — change to region nearest your users
+
+[build]
+  dockerfile = "backend/Dockerfile"
+
+[env]
+  PORT = "8080"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true   # stops when idle to stay in free tier
+  auto_start_machines = true  # wakes on request
+  min_machines_running = 0    # 0 = fully stops when idle (free tier friendly)
+
+[[vm]]
+  memory = "256mb"
+  cpu_kind = "shared"
+  cpus = 1
