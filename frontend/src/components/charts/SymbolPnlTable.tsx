@@ -1,5 +1,8 @@
+import { useState } from "react";
 import { clsx } from "clsx";
 import type { PnlSymbolPoint } from "@/types";
+
+const DEFAULT_VISIBLE = 8;
 
 interface Props {
   data: PnlSymbolPoint[];
@@ -10,7 +13,10 @@ function fmt(v: number) {
 }
 
 export default function SymbolPnlTable({ data }: Props) {
+  const [expanded, setExpanded] = useState(false);
   const sorted = [...data].sort((a, b) => Math.abs(b.pnl) - Math.abs(a.pnl));
+  const visible = expanded ? sorted : sorted.slice(0, DEFAULT_VISIBLE);
+  const hidden = sorted.length - DEFAULT_VISIBLE;
 
   return (
     <div className="overflow-auto">
@@ -25,7 +31,7 @@ export default function SymbolPnlTable({ data }: Props) {
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-          {sorted.map((row) => (
+          {visible.map((row) => (
             <tr key={row.symbol} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
               <td className="py-2 font-mono text-xs font-medium text-slate-800 dark:text-slate-200">{row.symbol}</td>
               <td className={clsx("py-2 text-right tabular-nums font-medium", row.pnl >= 0 ? "text-green-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400")}>
@@ -40,8 +46,18 @@ export default function SymbolPnlTable({ data }: Props) {
           ))}
         </tbody>
       </table>
+
       {sorted.length === 0 && (
         <p className="text-center text-slate-400 py-8 text-sm">No data for this period</p>
+      )}
+
+      {hidden > 0 && (
+        <button
+          onClick={() => setExpanded((e) => !e)}
+          className="mt-3 w-full text-xs text-slate-400 dark:text-slate-500 hover:text-brand-600 dark:hover:text-brand-400 transition-colors text-center"
+        >
+          {expanded ? "Show less ↑" : `Show all ${sorted.length} symbols ↓`}
+        </button>
       )}
     </div>
   );
