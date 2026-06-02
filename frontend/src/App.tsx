@@ -4,6 +4,7 @@ import { BrowserRouter, Navigate, NavLink, Outlet, Route, Routes } from "react-r
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { AccountProvider, useAccount } from "@/contexts/AccountContext";
 import { ThemeProvider, useTheme } from "@/contexts/ThemeContext";
+import { billing as billingApi } from "@/services/api";
 import BillingCancelPage from "@/pages/BillingCancelPage";
 import BillingSuccessPage from "@/pages/BillingSuccessPage";
 import Dashboard from "@/pages/Dashboard";
@@ -132,6 +133,36 @@ function AccountSwitcher() {
   );
 }
 
+function UpgradeButton() {
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+
+  if (user?.subscription_status === "pro") return null;
+
+  const handleClick = async () => {
+    setLoading(true);
+    try {
+      const { url } = await billingApi.createCheckout();
+      window.location.href = url;
+    } catch {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleClick}
+      disabled={loading}
+      className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-indigo-500 to-violet-500 text-white hover:from-indigo-600 hover:to-violet-600 transition-all shadow-sm disabled:opacity-60"
+    >
+      <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" />
+      </svg>
+      {loading ? "…" : "Upgrade to Pro"}
+    </button>
+  );
+}
+
 function Layout() {
   const { user, logout } = useAuth();
 
@@ -146,6 +177,7 @@ function Layout() {
         <NavLink to="/import" className={navClass}>Upload</NavLink>
         <NavLink to="/settings" className={navClass}>Settings</NavLink>
         <div className="ml-auto flex items-center gap-3">
+          <UpgradeButton />
           <AccountSwitcher />
           <span className="hidden md:inline text-sm text-gray-400 dark:text-slate-500">{user?.email}</span>
           <ThemeToggle />
