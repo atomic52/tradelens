@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import accounts, analytics, imports, trades
+from app.api.v1.endpoints import accounts, analytics, billing, imports, trades
 from app.core.auth import auth_backend, current_active_user, fastapi_users
 from app.schemas.user import UserCreate, UserRead, UserUpdate
 
@@ -35,3 +35,4 @@ router.include_router(accounts.router, tags=["accounts"])
 router.include_router(trades.router, tags=["trades"])
 router.include_router(imports.router, tags=["imports"])
 router.include_router(analytics.router, tags=["analytics"])
+router.include_router(billing.router)

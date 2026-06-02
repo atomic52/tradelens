@@ -20,6 +20,11 @@ class Settings(BaseSettings):
     from_email: str = "noreply@tradelens.app"
     frontend_url: str = "http://localhost:5173"
 
+    # Stripe
+    stripe_secret_key: str = ""
+    stripe_webhook_secret: str = ""
+    stripe_price_id: str = ""  # Price ID for TradeLens Pro monthly
+
     @property
     def cors_origins_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]

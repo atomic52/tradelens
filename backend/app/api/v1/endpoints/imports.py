@@ -43,6 +43,9 @@ async def _read_upload(file: UploadFile, allowed_content_types: list[str]) -> by
 
 async def _check_import_limit(user: User, session: AsyncSession) -> None:
     """Raise 402 if the user has reached the free-tier import limit."""
+    # Pro users have unlimited imports
+    if user.subscription_status == "pro":
+        return
     # Count all imports across every account belonging to this user
     result = await session.execute(
         select(func.count(ImportLog.id))
@@ -100,7 +103,9 @@ async def get_import_usage(
         .where(Account.user_id == user.id)
     )
     used = result.scalar_one()
-    return {"used": used, "limit": FREE_TIER_IMPORT_LIMIT}
+    if user.subscription_status == "pro":
+        return {"used": used, "limit": None, "plan": "pro"}
+    return {"used": used, "limit": FREE_TIER_IMPORT_LIMIT, "plan": "free"}
 
 
 @router.post("/accounts/{account_id}/import/robinhood-csv")

@@ -1,7 +1,73 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { format } from "date-fns";
-import { accounts as accountsApi } from "@/services/api";
+import { accounts as accountsApi, billing as billingApi } from "@/services/api";
+import { useAuth } from "@/contexts/AuthContext";
+
+function PlanSection() {
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+
+  const isPro = user?.subscription_status === "pro";
+
+  const handleUpgrade = async () => {
+    setLoading(true);
+    try {
+      const { url } = await billingApi.createCheckout();
+      window.location.href = url;
+    } catch {
+      setLoading(false);
+    }
+  };
+
+  const handleManage = async () => {
+    setLoading(true);
+    try {
+      const { url } = await billingApi.createPortal();
+      window.location.href = url;
+    } catch {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <section className="space-y-3">
+      <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Plan</h2>
+      <div className="bg-white dark:bg-slate-900 rounded-lg border dark:border-slate-800 p-4 flex items-center justify-between gap-4">
+        <div>
+          {isPro ? (
+            <>
+              <p className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">✦ TradeLens Pro</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Unlimited uploads · all features</p>
+            </>
+          ) : (
+            <>
+              <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">Free tier</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">10 uploads included · upgrade for unlimited</p>
+            </>
+          )}
+        </div>
+        {isPro ? (
+          <button
+            onClick={handleManage}
+            disabled={loading}
+            className="text-sm text-slate-600 dark:text-slate-400 hover:underline disabled:opacity-50"
+          >
+            {loading ? "Redirecting…" : "Manage subscription"}
+          </button>
+        ) : (
+          <button
+            onClick={handleUpgrade}
+            disabled={loading}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded text-sm font-semibold transition-colors disabled:opacity-50"
+          >
+            {loading ? "Redirecting…" : "Upgrade to Pro — $20/mo"}
+          </button>
+        )}
+      </div>
+    </section>
+  );
+}
 
 export default function SettingsPage() {
   const qc = useQueryClient();
@@ -47,6 +113,8 @@ export default function SettingsPage() {
   return (
     <div className="space-y-8 max-w-2xl">
       <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Settings</h1>
+
+      <PlanSection />
 
       {/* Accounts list */}
       <section className="space-y-3">

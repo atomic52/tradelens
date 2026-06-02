@@ -3,6 +3,7 @@ import type {
   Account,
   AnalyticsSummary,
   ImportResult,
+  ImportUsage,
   Period,
   PnlDailyPoint,
   PnlHourPoint,
@@ -92,7 +93,14 @@ export const imports = {
     return api.post<ImportResult>(`/accounts/${accountId}/import/nonfutures-pdf`, form).then((r) => r.data);
   },
   usage: () =>
-    api.get<{ used: number; limit: number }>("/imports/usage").then((r) => r.data),
+    api.get<ImportUsage>("/imports/usage").then((r) => r.data),
+};
+
+export const billing = {
+  createCheckout: () =>
+    api.post<{ url: string }>("/billing/checkout").then((r) => r.data),
+  createPortal: () =>
+    api.post<{ url: string }>("/billing/portal").then((r) => r.data),
 };
 
 export const analytics = {

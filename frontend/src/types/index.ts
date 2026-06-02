@@ -4,6 +4,7 @@ export interface User {
   id: string;
   email: string;
   is_active: boolean;
+  subscription_status: "free" | "pro" | "canceled";
 }
 
 export interface Account {
@@ -79,4 +80,10 @@ export interface ImportResult {
   trades_imported: number;
   executions_imported: number;
   file_hash: string;
+}
+
+export interface ImportUsage {
+  used: number;
+  limit: number | null;
+  plan: "free" | "pro";
 }

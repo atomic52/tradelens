@@ -4,6 +4,8 @@ import { BrowserRouter, Navigate, NavLink, Outlet, Route, Routes } from "react-r
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { AccountProvider, useAccount } from "@/contexts/AccountContext";
 import { ThemeProvider, useTheme } from "@/contexts/ThemeContext";
+import BillingCancelPage from "@/pages/BillingCancelPage";
+import BillingSuccessPage from "@/pages/BillingSuccessPage";
 import Dashboard from "@/pages/Dashboard";
 import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
 import ImportPage from "@/pages/ImportPage";
@@ -175,6 +177,8 @@ export default function App() {
             <Route path="/register" element={<PublicOnlyRoute><RegisterPage /></PublicOnlyRoute>} />
             <Route path="/forgot-password" element={<PublicOnlyRoute><ForgotPasswordPage /></PublicOnlyRoute>} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/billing/success" element={<BillingSuccessPage />} />
+            <Route path="/billing/cancel" element={<BillingCancelPage />} />
 
             {/* Private */}
             <Route element={<PrivateRoute />}>

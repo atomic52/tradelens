@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
-import { imports as importsApi } from "@/services/api";
+import { billing as billingApi, imports as importsApi } from "@/services/api";
 import { useFirstAccount } from "@/hooks/useFirstAccount";
 import type { ImportResult } from "@/types";
 
@@ -11,6 +11,32 @@ interface ImportCardProps {
   accept: string;
   onImport: (file: File) => Promise<ImportResult>;
   onSuccess: () => void;
+}
+
+function UpgradeBanner() {
+  const [loading, setLoading] = useState(false);
+  const handleUpgrade = async () => {
+    setLoading(true);
+    try {
+      const { url } = await billingApi.createCheckout();
+      window.location.href = url;
+    } catch {
+      setLoading(false);
+    }
+  };
+  return (
+    <div className="rounded-md bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800 px-4 py-3 text-sm text-orange-800 dark:text-orange-300">
+      <p className="font-medium">Free tier limit reached</p>
+      <p className="mt-0.5 mb-3">You've used all 10 free uploads. Upgrade to Pro for unlimited uploads.</p>
+      <button
+        onClick={handleUpgrade}
+        disabled={loading}
+        className="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1.5 rounded text-xs font-semibold transition-colors disabled:opacity-50"
+      >
+        {loading ? "Redirecting…" : "Upgrade to Pro — $20/mo"}
+      </button>
+    </div>
+  );
 }
 
 function ImportCard({ title, description, instructions, accept, onImport, onSuccess }: ImportCardProps) {
@@ -89,10 +115,7 @@ function ImportCard({ title, description, instructions, accept, onImport, onSucc
         </div>
       )}
       {errorMsg === "upgrade" && (
-        <div className="rounded-md bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800 px-4 py-3 text-sm text-orange-800 dark:text-orange-300">
-          <p className="font-medium">Free tier limit reached</p>
-          <p className="mt-0.5">You've used all 10 free uploads. Upgrade to Pro for unlimited uploads.</p>
-        </div>
+        <UpgradeBanner />
       )}
       {errorMsg && errorMsg !== "upgrade" && (
         <div className="rounded-md bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 px-4 py-3 text-sm text-red-700 dark:text-red-300">
@@ -140,21 +163,25 @@ export default function ImportPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Upload</h1>
         {usage && (
-          <div className={`text-sm px-3 py-1.5 rounded-full border ${
-            usage.used >= usage.limit
-              ? "bg-orange-50 dark:bg-orange-950/30 border-orange-200 dark:border-orange-800 text-orange-700 dark:text-orange-300"
-              : usage.used >= usage.limit - 1
-              ? "bg-yellow-50 dark:bg-yellow-950/30 border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-300"
-              : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400"
-          }`}>
-            {usage.used} / {usage.limit} free uploads used
-          </div>
+          usage.plan === "pro" ? (
+            <div className="text-sm px-3 py-1.5 rounded-full border bg-indigo-50 dark:bg-indigo-950/30 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-medium">
+              ✦ Pro — unlimited uploads
+            </div>
+          ) : (
+            <div className={`text-sm px-3 py-1.5 rounded-full border ${
+              usage.limit !== null && usage.used >= usage.limit
+                ? "bg-orange-50 dark:bg-orange-950/30 border-orange-200 dark:border-orange-800 text-orange-700 dark:text-orange-300"
+                : usage.limit !== null && usage.used >= usage.limit - 1
+                ? "bg-yellow-50 dark:bg-yellow-950/30 border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-300"
+                : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400"
+            }`}>
+              {usage.used} / {usage.limit} free uploads used
+            </div>
+          )
         )}
       </div>
-      {usage && usage.used >= usage.limit && (
-        <div className="rounded-md bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800 px-4 py-3 text-sm text-orange-800 dark:text-orange-300">
-          <span className="font-medium">Free tier limit reached.</span> You've used all {usage.limit} free uploads. Upgrade to Pro for unlimited uploads.
-        </div>
+      {usage && usage.plan !== "pro" && usage.limit !== null && usage.used >= usage.limit && (
+        <UpgradeBanner />
       )}
       <div className="grid md:grid-cols-3 gap-6">
         <ImportCard
