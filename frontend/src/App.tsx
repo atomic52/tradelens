@@ -136,30 +136,36 @@ function AccountSwitcher() {
 function UpgradeButton() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState(false);
 
   if (user?.subscription_status === "pro") return null;
 
   const handleClick = async () => {
     setLoading(true);
+    setErr(false);
     try {
       const { url } = await billingApi.createCheckout();
       window.location.href = url;
     } catch {
       setLoading(false);
+      setErr(true);
     }
   };
 
   return (
-    <button
-      onClick={handleClick}
-      disabled={loading}
-      className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-indigo-500 to-violet-500 text-white hover:from-indigo-600 hover:to-violet-600 transition-all shadow-sm disabled:opacity-60"
-    >
-      <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" />
-      </svg>
-      {loading ? "…" : "Upgrade to Pro"}
-    </button>
+    <div className="hidden sm:flex flex-col items-end gap-0.5">
+      <button
+        onClick={handleClick}
+        disabled={loading}
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-indigo-500 to-violet-500 text-white hover:from-indigo-600 hover:to-violet-600 transition-all shadow-sm disabled:opacity-60"
+      >
+        <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" />
+        </svg>
+        {loading ? "Redirecting…" : "Upgrade to Pro"}
+      </button>
+      {err && <span className="text-[10px] text-red-400">Billing unavailable — try again</span>}
+    </div>
   );
 }
 

@@ -55,16 +55,19 @@ function ProBanner() {
   const { user } = useAuth();
   const [dismissed, setDismissed] = useState(() => localStorage.getItem(DISMISS_KEY) === "1");
   const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState(false);
 
   if (user?.subscription_status === "pro" || dismissed) return null;
 
   const handleUpgrade = async () => {
     setLoading(true);
+    setErr(false);
     try {
       const { url } = await billingApi.createCheckout();
       window.location.href = url;
     } catch {
       setLoading(false);
+      setErr(true);
     }
   };
 
@@ -89,13 +92,16 @@ function ProBanner() {
         </div>
       </div>
       <div className="flex items-center gap-2 flex-shrink-0">
-        <button
-          onClick={handleUpgrade}
-          disabled={loading}
-          className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition-colors disabled:opacity-50"
-        >
-          {loading ? "Redirecting…" : "Upgrade — $20/mo"}
-        </button>
+        <div className="flex flex-col items-end gap-1">
+          <button
+            onClick={handleUpgrade}
+            disabled={loading}
+            className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition-colors disabled:opacity-50"
+          >
+            {loading ? "Redirecting…" : "Upgrade — $20/mo"}
+          </button>
+          {err && <span className="text-[10px] text-red-400">Billing unavailable — try again</span>}
+        </div>
         <button
           onClick={handleDismiss}
           aria-label="Dismiss"
