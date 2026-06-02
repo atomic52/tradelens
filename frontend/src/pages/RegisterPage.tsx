@@ -63,7 +63,7 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        <p className="text-xs text-slate-600">5 free imports · no credit card required</p>
+        <p className="text-xs text-slate-600">10 free uploads · no credit card required</p>
       </div>
 
       {/* ── Right panel ── */}
