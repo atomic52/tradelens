@@ -25,7 +25,7 @@ function formatHoldTime(mins: number | null): string {
 }
 
 function fmt(v: number, decimals = 2) {
-  return `${v >= 0 ? "+" : ""}$${Math.abs(v).toFixed(decimals)}`;
+  return `${v >= 0 ? "+" : "-"}$${Math.abs(v).toFixed(decimals)}`;
 }
 
 function fmtK(v: number) {
