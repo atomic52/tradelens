@@ -4,6 +4,32 @@ import { format } from "date-fns";
 import { accounts as accountsApi, billing as billingApi } from "@/services/api";
 import { useAuth } from "@/contexts/AuthContext";
 
+function AccountUpgradeBanner() {
+  const [loading, setLoading] = useState(false);
+  const handleUpgrade = async () => {
+    setLoading(true);
+    try {
+      const { url } = await billingApi.createCheckout();
+      window.location.href = url;
+    } catch {
+      setLoading(false);
+    }
+  };
+  return (
+    <div className="rounded-lg bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800 px-3 py-2.5 text-sm text-orange-800 dark:text-orange-300">
+      <p className="font-medium">Account limit reached</p>
+      <p className="text-xs mt-0.5 mb-2">Free plan supports 1 account. Upgrade to Pro for up to 5 accounts.</p>
+      <button
+        onClick={handleUpgrade}
+        disabled={loading}
+        className="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1 rounded text-xs font-semibold transition-colors disabled:opacity-50"
+      >
+        {loading ? "Redirecting…" : "Upgrade to Pro"}
+      </button>
+    </div>
+  );
+}
+
 function PlanSection() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -93,7 +119,15 @@ export default function SettingsPage() {
       setBroker("robinhood");
       setCreateError("");
     },
-    onError: () => setCreateError("Failed to create account."),
+    onError: (err: unknown) => {
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? "";
+      if (status === 402) {
+        setCreateError("upgrade");
+      } else {
+        setCreateError(detail || "Failed to create account.");
+      }
+    },
   });
 
   const handleDelete = (id: string, accountName: string) => {
@@ -170,7 +204,11 @@ export default function SettingsPage() {
               <option value="other">Other</option>
             </select>
           </div>
-          {createError && <p className="text-sm text-red-600 dark:text-red-400">{createError}</p>}
+          {createError === "upgrade" ? (
+            <AccountUpgradeBanner />
+          ) : createError ? (
+            <p className="text-sm text-red-600 dark:text-red-400">{createError}</p>
+          ) : null}
           <button
             type="submit"
             disabled={createMutation.isPending || !name.trim()}

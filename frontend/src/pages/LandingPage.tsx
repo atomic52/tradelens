@@ -459,6 +459,109 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── Pricing ──────────────────────────────────────────────── */}
+      <section className="py-24 relative overflow-hidden" style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+        <div className="absolute inset-0 pointer-events-none" style={{
+          background: "radial-gradient(ellipse 60% 60% at 50% 50%, rgba(139,92,246,0.06) 0%, transparent 70%)",
+        }} />
+        <div className="relative max-w-4xl mx-auto px-6">
+          <div className="text-center mb-14">
+            <p className="text-violet-400 text-xs font-semibold uppercase tracking-widest mb-4">Pricing</p>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+              Simple, honest pricing
+            </h2>
+            <p className="text-slate-400 mt-4 text-base max-w-sm mx-auto">Start free. Upgrade when you're ready to go deeper.</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+            {/* Free */}
+            <div className="rounded-2xl p-8 flex flex-col" style={{
+              background: "rgba(15,23,42,0.6)",
+              border: "1px solid rgba(255,255,255,0.07)",
+            }}>
+              <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-3">Free</p>
+              <div className="flex items-end gap-1 mb-1">
+                <span className="text-4xl font-extrabold text-white">$0</span>
+              </div>
+              <p className="text-slate-500 text-sm mb-8">Forever free. No credit card needed.</p>
+              <ul className="space-y-3 flex-1 mb-8">
+                {[
+                  "10 uploads total",
+                  "1 trading account",
+                  "All 3 statement types",
+                  "Full analytics dashboard",
+                  "Trade journal with notes & tags",
+                  "FIFO trade matching",
+                ].map((f) => (
+                  <li key={f} className="flex items-center gap-2.5 text-sm text-slate-300">
+                    <svg className="w-4 h-4 text-slate-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <Link to="/register"
+                className="block text-center py-3 rounded-xl text-sm font-semibold text-slate-300 transition-colors"
+                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
+                onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.1)")}
+                onMouseLeave={e => (e.currentTarget.style.background = "rgba(255,255,255,0.06)")}
+              >
+                Get started free
+              </Link>
+            </div>
+
+            {/* Pro */}
+            <div className="rounded-2xl p-8 flex flex-col relative overflow-hidden" style={{
+              background: "linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(139,92,246,0.15) 100%)",
+              border: "1px solid rgba(139,92,246,0.4)",
+            }}>
+              {/* glow */}
+              <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full pointer-events-none" style={{
+                background: "radial-gradient(circle, rgba(139,92,246,0.2) 0%, transparent 70%)",
+              }} />
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs font-semibold uppercase tracking-widest text-violet-400">Pro</p>
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full"
+                  style={{ background: "rgba(139,92,246,0.25)", color: "#c4b5fd", border: "1px solid rgba(139,92,246,0.4)" }}>
+                  Most popular
+                </span>
+              </div>
+              <div className="flex items-end gap-1 mb-1">
+                <span className="text-4xl font-extrabold text-white">$20</span>
+                <span className="text-slate-400 text-sm mb-1.5">/month</span>
+              </div>
+              <p className="text-slate-400 text-sm mb-8">Everything in Free, plus:</p>
+              <ul className="space-y-3 flex-1 mb-8">
+                {[
+                  "Unlimited uploads",
+                  "Up to 5 trading accounts",
+                  "All statement types",
+                  "Full analytics dashboard",
+                  "Trade journal with notes & tags",
+                  "Cancel any time",
+                ].map((f, i) => (
+                  <li key={f} className="flex items-center gap-2.5 text-sm text-slate-200">
+                    <svg className={`w-4 h-4 flex-shrink-0 ${i < 2 ? "text-violet-400" : "text-slate-500"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <Link to="/register"
+                className="block text-center py-3 rounded-xl text-sm font-semibold text-white transition-all"
+                style={{ background: "linear-gradient(100deg, #6366f1, #8b5cf6)" }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = "0.9")}
+                onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+              >
+                Start free, then upgrade
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── CTA ──────────────────────────────────────────────────── */}
       <section className="py-24 relative overflow-hidden" style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
         <div className="absolute inset-0 pointer-events-none" style={{
@@ -475,7 +578,7 @@ export default function LandingPage() {
             }}>your edge?</span>
           </h2>
           <p className="text-slate-400 mb-10 text-lg leading-relaxed max-w-md mx-auto">
-            Start with 10 free uploads. Understand what's working before you commit to anything.
+            Start free, upgrade when you're ready. No credit card required to get started.
           </p>
           <Link to="/register"
             className="inline-flex items-center gap-2 bg-white text-slate-900 px-10 py-4 rounded-xl text-sm font-bold hover:bg-slate-100 transition-colors shadow-2xl shadow-black/40">

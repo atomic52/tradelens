@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.auth import current_active_user
@@ -11,6 +11,9 @@ from app.models.user import User
 from app.schemas.account import AccountCreate, AccountRead
 
 router = APIRouter()
+
+FREE_ACCOUNT_LIMIT = 1
+PRO_ACCOUNT_LIMIT = 5
 
 
 @router.get("/accounts", response_model=list[AccountRead])
@@ -30,6 +33,24 @@ async def create_account(
     session: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
 ):
+    # Enforce per-plan account limits
+    count_result = await session.execute(
+        select(func.count(Account.id)).where(Account.user_id == user.id)
+    )
+    current_count = count_result.scalar_one()
+    limit = PRO_ACCOUNT_LIMIT if user.subscription_status == "pro" else FREE_ACCOUNT_LIMIT
+    if current_count >= limit:
+        if user.subscription_status == "pro":
+            raise HTTPException(
+                status_code=402,
+                detail=f"Pro plan supports up to {PRO_ACCOUNT_LIMIT} accounts.",
+            )
+        else:
+            raise HTTPException(
+                status_code=402,
+                detail=f"Free plan supports {FREE_ACCOUNT_LIMIT} account. Upgrade to Pro for up to {PRO_ACCOUNT_LIMIT} accounts.",
+            )
+
     account = Account(name=body.name, broker=body.broker, user_id=user.id)
     session.add(account)
     await session.commit()
