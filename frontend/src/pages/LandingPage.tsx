@@ -122,9 +122,9 @@ function HeroDashboard() {
 
 function MockStatCard({ label, value, color = "text-white" }: { label: string; value: string; color?: string }) {
   return (
-    <div className="bg-slate-800/70 rounded-xl border border-slate-700/60 p-3">
-      <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">{label}</p>
-      <p className={`${color} font-bold text-lg mt-1 tabular-nums`}>{value}</p>
+    <div className="bg-slate-800/70 rounded-xl border border-slate-700/60 p-3 overflow-hidden min-w-0">
+      <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider truncate">{label}</p>
+      <p className={`${color} font-bold text-lg mt-1 tabular-nums truncate`}>{value}</p>
     </div>
   );
 }
@@ -146,7 +146,7 @@ function MockDashboard() {
       <div className="p-4 space-y-3">
         {/* deeper metrics row — different from hero */}
         <div className="grid grid-cols-4 gap-2">
-          <MockStatCard label="Expectancy" value="+$153/trade" color="text-emerald-400" />
+          <MockStatCard label="Expectancy" value="+$153" color="text-emerald-400" />
           <MockStatCard label="Avg Winner" value="+$842" color="text-emerald-400" />
           <MockStatCard label="Avg Loser" value="-$394" color="text-red-400" />
           <MockStatCard label="Avg Hold" value="2d 4h" />
