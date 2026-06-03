@@ -58,7 +58,7 @@ const columns = [
       if (v == null) return "—";
       return (
         <span className={clsx("font-medium tabular-nums", Number(v) >= 0 ? "text-green-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400")}>
-          {Number(v) >= 0 ? "+" : ""}${Number(v).toFixed(2)}
+          {Number(v) >= 0 ? "+$" : "-$"}{Math.abs(Number(v)).toFixed(2)}
         </span>
       );
     },

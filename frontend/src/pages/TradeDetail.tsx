@@ -71,7 +71,7 @@ export default function TradeDetail() {
               pnl == null ? "text-slate-400" : pnl >= 0 ? "text-green-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400"
             )}
           >
-            {pnl != null ? `${pnl >= 0 ? "+" : ""}$${pnl.toFixed(2)}` : "Open"}
+            {pnl != null ? `${pnl >= 0 ? "+$" : "-$"}${Math.abs(pnl).toFixed(2)}` : "Open"}
           </span>
         </div>
 
