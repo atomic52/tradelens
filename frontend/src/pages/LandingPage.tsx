@@ -1,4 +1,122 @@
 import { Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+
+// ─── Count-up animation hook ────────────────────────────────────────────────
+
+function useCountUp(target: number, duration = 1400, decimals = 0) {
+  const [value, setValue] = useState(0);
+  const started = useRef(false);
+  useEffect(() => {
+    if (started.current) return;
+    started.current = true;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min((now - start) / duration, 1);
+      // ease out cubic
+      const ease = 1 - Math.pow(1 - t, 3);
+      setValue(parseFloat((target * ease).toFixed(decimals)));
+      if (t < 1) requestAnimationFrame(tick);
+      else setValue(target);
+    };
+    // Small delay so the page has painted before animating
+    setTimeout(() => requestAnimationFrame(tick), 300);
+  }, [target, duration, decimals]);
+  return value;
+}
+
+// ─── Hero dashboard mockup with animated stats ──────────────────────────────
+
+function HeroDashboard() {
+  const pnl = useCountUp(4281, 1600, 0);
+  const winRate = useCountUp(64.3, 1400, 1);
+  const pf = useCountUp(2.14, 1200, 2);
+  const dd = useCountUp(1240, 1500, 0);
+  const bars = [42, 28, 68, 55, 22, 38, 80, 92, 17, 63, 47, 33, 57, 75, 24, 88];
+
+  return (
+    <div className="w-full max-w-3xl mx-auto" style={{ filter: "drop-shadow(0 40px 80px rgba(0,0,0,0.7))" }}>
+      {/* Browser chrome */}
+      <div className="rounded-t-2xl overflow-hidden" style={{
+        background: "rgba(22,28,45,0.95)",
+        border: "1px solid rgba(255,255,255,0.08)",
+        borderBottom: "none",
+      }}>
+        <div className="flex items-center gap-2 px-4 py-3 border-b" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+          <div className="flex gap-1.5">
+            <div className="w-2.5 h-2.5 rounded-full" style={{ background: "rgba(255,255,255,0.12)" }} />
+            <div className="w-2.5 h-2.5 rounded-full" style={{ background: "rgba(255,255,255,0.12)" }} />
+            <div className="w-2.5 h-2.5 rounded-full" style={{ background: "rgba(255,255,255,0.12)" }} />
+          </div>
+          <div className="flex-1 mx-3 rounded-md py-1 px-3 text-center text-[11px]"
+            style={{ background: "rgba(255,255,255,0.05)", color: "rgba(148,163,184,0.5)" }}>
+            tradelens.cloud/dashboard
+          </div>
+        </div>
+      </div>
+      {/* Dashboard body */}
+      <div className="rounded-b-2xl overflow-hidden p-4 space-y-3" style={{
+        background: "rgba(10,14,26,0.97)",
+        border: "1px solid rgba(255,255,255,0.08)",
+        borderTop: "none",
+      }}>
+        {/* Animated stat cards */}
+        <div className="grid grid-cols-4 gap-2">
+          {[
+            { label: "Net P&L", display: `+$${pnl.toLocaleString()}`, color: "#34d399" },
+            { label: "Win Rate", display: `${winRate}%`, color: "#f1f5f9" },
+            { label: "Profit Factor", display: `${pf}`, color: "#f1f5f9" },
+            { label: "Max Drawdown", display: `-$${dd.toLocaleString()}`, color: "#f87171" },
+          ].map((s) => (
+            <div key={s.label} className="rounded-xl p-3" style={{
+              background: "rgba(30,41,59,0.7)",
+              border: "1px solid rgba(255,255,255,0.05)",
+            }}>
+              <p className="text-[9px] font-semibold uppercase tracking-wider mb-1.5" style={{ color: "#475569" }}>{s.label}</p>
+              <p className="text-lg font-extrabold tabular-nums leading-none" style={{ color: s.color, letterSpacing: "-0.03em" }}>
+                {s.display}
+              </p>
+            </div>
+          ))}
+        </div>
+        {/* Charts row */}
+        <div className="grid grid-cols-2 gap-2">
+          {/* Daily P&L bars */}
+          <div className="rounded-xl p-3" style={{ background: "rgba(30,41,59,0.5)", border: "1px solid rgba(255,255,255,0.05)" }}>
+            <p className="text-[10px] font-semibold text-white mb-2">Daily P&L</p>
+            <div className="flex items-end gap-[3px] h-12">
+              {bars.map((h, i) => (
+                <div key={i} className="flex-1 rounded-sm"
+                  style={{
+                    height: `${h}%`,
+                    background: i % 3 === 1 ? "rgba(248,113,113,0.7)" : "rgba(52,211,153,0.7)",
+                  }} />
+              ))}
+            </div>
+          </div>
+          {/* Cumulative curve */}
+          <div className="rounded-xl p-3" style={{ background: "rgba(30,41,59,0.5)", border: "1px solid rgba(255,255,255,0.05)" }}>
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-[10px] font-semibold text-white">Cumulative P&L</p>
+              <p className="text-[10px] font-bold" style={{ color: "#34d399" }}>+$4,281</p>
+            </div>
+            <svg viewBox="0 0 280 48" className="w-full h-10" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="hg" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#34d399" stopOpacity="0.25" />
+                  <stop offset="100%" stopColor="#34d399" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              <path d="M0,46 C15,42 25,40 45,36 C65,32 75,34 95,27 C115,20 125,23 145,15 C165,8 175,11 195,7 C215,3 235,5 255,2 C265,1 270,1 280,1"
+                fill="none" stroke="#34d399" strokeWidth="1.5" strokeLinecap="round" />
+              <path d="M0,46 C15,42 25,40 45,36 C65,32 75,34 95,27 C115,20 125,23 145,15 C165,8 175,11 195,7 C215,3 235,5 255,2 C265,1 270,1 280,1 L280,48 L0,48 Z"
+                fill="url(#hg)" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // ─── Fake mini dashboard for feature mockups ────────────────────────────────
 
@@ -206,7 +324,7 @@ export default function LandingPage() {
       </header>
 
       {/* ── Hero ─────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden flex flex-col items-center justify-center text-center px-6 pt-36 pb-24 min-h-screen">
+      <section className="relative overflow-hidden flex flex-col items-center text-center px-6 pt-36 pb-16">
         {/* atmosphere */}
         <div className="absolute inset-0 pointer-events-none" style={{
           background: "radial-gradient(ellipse 100% 60% at 50% -5%, rgba(99,102,241,0.18) 0%, transparent 70%), radial-gradient(ellipse 60% 40% at 80% 90%, rgba(192,132,252,0.07) 0%, transparent 60%)",
@@ -216,36 +334,43 @@ export default function LandingPage() {
           backgroundSize: "28px 28px",
         }} />
 
-        {/* eyebrow label */}
-        <div className="relative flex items-center gap-3 mb-8">
-          <div className="h-px w-8" style={{ background: "linear-gradient(to right, transparent, rgba(129,140,248,0.4))" }} />
-          <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-indigo-400">Trade Journal</span>
-          <div className="h-px w-8" style={{ background: "linear-gradient(to left, transparent, rgba(129,140,248,0.4))" }} />
+        {/* "FOR ROBINHOOD TRADERS" badge */}
+        <div className="relative mb-7">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-semibold uppercase tracking-widest"
+            style={{
+              background: "rgba(99,102,241,0.12)",
+              border: "1px solid rgba(99,102,241,0.3)",
+              color: "#a5b4fc",
+            }}>
+            <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 inline-block" />
+            For Robinhood traders
+          </span>
         </div>
 
-        {/* MASSIVE wordmark */}
-        <h1 className="relative select-none mb-6 leading-none tracking-tighter"
-          style={{
-            fontSize: "clamp(68px, 11vw, 130px)",
-            fontWeight: 900,
-            letterSpacing: "-0.04em",
-            filter: "drop-shadow(0 0 70px rgba(129,140,248,0.28))",
-          }}>
-          <span style={{ color: "#f1f5f9" }}>Trade</span>
-          <span style={{
+        {/* Headline */}
+        <h1 className="relative mb-5 leading-tight tracking-tight" style={{ fontWeight: 900 }}>
+          <span className="block text-white" style={{ fontSize: "clamp(40px, 6vw, 72px)", letterSpacing: "-0.03em" }}>
+            Stop guessing.
+          </span>
+          <span className="block" style={{
+            fontSize: "clamp(40px, 6vw, 72px)",
+            letterSpacing: "-0.03em",
             background: "linear-gradient(100deg, #818cf8 0%, #c084fc 55%, #f472b6 100%)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",
-          }}>Lens</span>
+          }}>
+            Start understanding.
+          </span>
         </h1>
 
-        {/* tagline */}
-        <p className="text-slate-400 text-lg md:text-xl max-w-lg mx-auto mb-10 leading-relaxed">
-          Import your Robinhood statements, <span className="text-slate-200 font-medium">understand every trade</span>, and sharpen your edge — all in one place.
+        {/* Tagline */}
+        <p className="relative text-slate-400 text-lg max-w-lg mx-auto mb-9 leading-relaxed">
+          Upload your Robinhood statements and instantly see win rate, P&L, profit factor, and more — all in one dashboard.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+        {/* CTAs */}
+        <div className="relative flex flex-col sm:flex-row gap-3 justify-center mb-3">
           <Link to="/register"
             className="inline-flex items-center justify-center gap-2 bg-white text-slate-900 px-8 py-3.5 rounded-xl text-sm font-bold hover:bg-slate-100 transition-colors shadow-xl shadow-black/30">
             Start for free
@@ -259,23 +384,14 @@ export default function LandingPage() {
             Sign in
           </Link>
         </div>
-        <p className="text-xs mt-3" style={{ color: "rgba(100,116,139,0.7)" }}>10 free uploads · no credit card required</p>
+        <p className="relative text-xs mb-14" style={{ color: "rgba(100,116,139,0.7)" }}>10 free uploads · no credit card required</p>
 
-        {/* stats strip */}
-        <div className="relative mt-20 pt-8 w-full max-w-2xl mx-auto grid grid-cols-4 divide-x"
-          style={{ borderTop: "1px solid rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.05)" }}>
-          {[
-            { value: "11+", label: "Metrics" },
-            { value: "FIFO", label: "Matching" },
-            { value: "3", label: "Formats" },
-            { value: "Free", label: "To start" },
-          ].map((s) => (
-            <div key={s.label} className="px-6 text-center"
-              style={{ borderColor: "rgba(255,255,255,0.05)" }}>
-              <p className="text-xl font-black text-white tracking-tight">{s.value}</p>
-              <p className="text-[11px] mt-1 uppercase tracking-widest" style={{ color: "rgba(100,116,139,0.7)" }}>{s.label}</p>
-            </div>
-          ))}
+        {/* Animated dashboard mockup */}
+        <div className="relative w-full">
+          <HeroDashboard />
+          {/* fade bottom edge into next section */}
+          <div className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none"
+            style={{ background: "linear-gradient(to bottom, transparent, #07090f)" }} />
         </div>
       </section>
 
