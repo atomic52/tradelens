@@ -130,7 +130,6 @@ function MockStatCard({ label, value, color = "text-white" }: { label: string; v
 }
 
 function MockDashboard() {
-  const bars = [42, 28, 68, 55, 22, 38, 80, 92, 17, 63, 47, 33, 57, 75, 24, 88];
   return (
     <div className="bg-[#0b0f1a] rounded-2xl border border-slate-700/50 shadow-2xl shadow-black/60 overflow-hidden">
       {/* window chrome */}
@@ -145,47 +144,50 @@ function MockDashboard() {
       </div>
 
       <div className="p-4 space-y-3">
-        {/* stat row */}
+        {/* deeper metrics row — different from hero */}
         <div className="grid grid-cols-4 gap-2">
-          <MockStatCard label="Net P&L" value="+$2,841" color="text-emerald-400" />
-          <MockStatCard label="Win Rate" value="62%" />
-          <MockStatCard label="Profit Factor" value="1.84" />
+          <MockStatCard label="Expectancy" value="+$153/trade" color="text-emerald-400" />
+          <MockStatCard label="Avg Winner" value="+$842" color="text-emerald-400" />
+          <MockStatCard label="Avg Loser" value="-$394" color="text-red-400" />
           <MockStatCard label="Avg Hold" value="2d 4h" />
         </div>
 
-        {/* daily bars */}
-        <div className="bg-slate-800/50 rounded-xl border border-slate-700/50 p-3">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-white text-[10px] font-semibold">Daily P&L</p>
-            <p className="text-slate-600 text-[10px]">16 trading days</p>
+        {/* streak + by-hour row */}
+        <div className="grid grid-cols-2 gap-2">
+          {/* streak cards */}
+          <div className="bg-slate-800/50 rounded-xl border border-slate-700/50 p-3 space-y-2">
+            <p className="text-white text-[10px] font-semibold mb-1">Streaks</p>
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-slate-400">Current</span>
+              <span className="text-[11px] font-bold text-emerald-400">4W in a row</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-slate-400">Best win streak</span>
+              <span className="text-[11px] font-bold text-white">7</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-slate-400">Worst loss streak</span>
+              <span className="text-[11px] font-bold text-red-400">5</span>
+            </div>
           </div>
-          <div className="flex items-end gap-[3px] h-14">
-            {bars.map((h, i) => (
-              <div
-                key={i}
-                className={`flex-1 rounded-sm ${i % 3 === 1 ? "bg-red-500/70" : "bg-emerald-500/70"}`}
-                style={{ height: `${h}%` }}
-              />
+          {/* P&L by symbol */}
+          <div className="bg-slate-800/50 rounded-xl border border-slate-700/50 p-3">
+            <p className="text-white text-[10px] font-semibold mb-2">P&L by Symbol</p>
+            {[
+              { sym: "SPXW", pnl: "+$2,410", w: "80%" },
+              { sym: "MNQ",  pnl: "+$1,190", w: "65%" },
+              { sym: "MES",  pnl: "-$320",   w: "40%" },
+            ].map((r) => (
+              <div key={r.sym} className="flex items-center gap-2 mb-1.5">
+                <span className="text-[10px] font-mono text-slate-300 w-10 flex-shrink-0">{r.sym}</span>
+                <div className="flex-1 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                  <div className="h-full rounded-full"
+                    style={{ width: r.w, background: r.pnl.startsWith("+") ? "rgba(52,211,153,0.7)" : "rgba(248,113,113,0.7)" }} />
+                </div>
+                <span className={`text-[10px] font-semibold w-12 text-right ${r.pnl.startsWith("+") ? "text-emerald-400" : "text-red-400"}`}>{r.pnl}</span>
+              </div>
             ))}
           </div>
-        </div>
-
-        {/* cumulative curve (SVG) */}
-        <div className="bg-slate-800/50 rounded-xl border border-slate-700/50 p-3">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-white text-[10px] font-semibold">Cumulative P&L</p>
-            <p className="text-emerald-400 text-[10px] font-semibold">+$2,841</p>
-          </div>
-          <svg viewBox="0 0 280 48" className="w-full h-10" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="lg" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#34d399" stopOpacity="0.25" />
-                <stop offset="100%" stopColor="#34d399" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            <path d="M0,46 C15,42 25,40 45,36 C65,32 75,34 95,27 C115,20 125,23 145,15 C165,8 175,11 195,7 C215,3 235,5 255,2 C265,1 270,1 280,1" fill="none" stroke="#34d399" strokeWidth="1.5" strokeLinecap="round" />
-            <path d="M0,46 C15,42 25,40 45,36 C65,32 75,34 95,27 C115,20 125,23 145,15 C165,8 175,11 195,7 C215,3 235,5 255,2 C265,1 270,1 280,1 L280,48 L0,48 Z" fill="url(#lg)" />
-          </svg>
         </div>
       </div>
     </div>
