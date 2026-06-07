@@ -22,6 +22,11 @@ function dateRangeParams(range?: DateRange | null) {
   };
 }
 
+// "custom" is a frontend-only concept; backend accepts the standard period enum
+function apiPeriod(period: Period): string {
+  return period === "custom" ? "all" : period;
+}
+
 // Requests always go to /api/v1 — Vercel proxies to Fly in production,
 // Vite proxies to localhost:8000 in local dev. Same-origin in both cases.
 const api = axios.create({
@@ -117,7 +122,7 @@ export const analytics = {
   summary: (accountId: string, period: Period = "all", range?: DateRange | null) =>
     api
       .get<AnalyticsSummary>(`/accounts/${accountId}/analytics/summary`, {
-        params: { period, ...dateRangeParams(range) },
+        params: { period: apiPeriod(period), ...dateRangeParams(range) },
       })
       .then((r) => r.data),
   pnlDaily: (accountId: string, days = 30, range?: DateRange | null) =>
@@ -129,19 +134,19 @@ export const analytics = {
   pnlByHour: (accountId: string, period: Period = "all", range?: DateRange | null) =>
     api
       .get<PnlHourPoint[]>(`/accounts/${accountId}/analytics/pnl-by-hour`, {
-        params: { period, ...dateRangeParams(range) },
+        params: { period: apiPeriod(period), ...dateRangeParams(range) },
       })
       .then((r) => r.data),
   pnlBySymbol: (accountId: string, period: Period = "all", range?: DateRange | null) =>
     api
       .get<PnlSymbolPoint[]>(`/accounts/${accountId}/analytics/pnl-by-symbol`, {
-        params: { period, ...dateRangeParams(range) },
+        params: { period: apiPeriod(period), ...dateRangeParams(range) },
       })
       .then((r) => r.data),
   pnlCumulative: (accountId: string, period: Period = "all", range?: DateRange | null) =>
     api
       .get<PnlDailyPoint[]>(`/accounts/${accountId}/analytics/pnl-cumulative`, {
-        params: { period, ...dateRangeParams(range) },
+        params: { period: apiPeriod(period), ...dateRangeParams(range) },
       })
       .then((r) => r.data),
 };
