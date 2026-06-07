@@ -9,7 +9,7 @@ import PeriodToggle from "@/components/ui/PeriodToggle";
 import DailyPnlChart from "@/components/charts/DailyPnlChart";
 import CumulativeChart from "@/components/charts/CumulativeChart";
 import SymbolPnlTable from "@/components/charts/SymbolPnlTable";
-import type { Period } from "@/types";
+import type { DateRange, Period } from "@/types";
 
 function formatHoldTime(mins: number | null): string {
   if (mins == null) return "—";
@@ -40,8 +40,8 @@ function streakLabel(type: "win" | "loss" | null, count: number): string {
   return `${count} ${type === "win" ? "W" : "L"}`;
 }
 
-// Map period to approximate days for the daily chart
-const PERIOD_DAYS: Record<Period, number> = {
+// Map period to approximate days for the daily chart (custom uses date range directly)
+const PERIOD_DAYS: Partial<Record<Period, number>> = {
   today: 1,
   week: 7,
   month: 31,
@@ -118,32 +118,37 @@ function ProBanner() {
 
 export default function Dashboard() {
   const [period, setPeriod] = useState<Period>("all");
+  const [dateRange, setDateRange] = useState<DateRange | null>(null);
   const { accountId, isLoading: accountLoading } = useFirstAccount();
 
   const enabled = !!accountId;
-  const queryOpts = { enabled };
+  // For custom period, only fire queries once both dates are set
+  const customReady = period !== "custom" || !!dateRange;
+  const queryOpts = { enabled: enabled && customReady };
+
+  const range = period === "custom" ? dateRange : null;
 
   const { data: summary } = useQuery({
-    queryKey: ["summary", accountId, period],
-    queryFn: () => analytics.summary(accountId!, period),
+    queryKey: ["summary", accountId, period, range],
+    queryFn: () => analytics.summary(accountId!, period, range),
     ...queryOpts,
   });
 
   const { data: daily = [] } = useQuery({
-    queryKey: ["pnl-daily", accountId, period],
-    queryFn: () => analytics.pnlDaily(accountId!, PERIOD_DAYS[period]),
+    queryKey: ["pnl-daily", accountId, period, range],
+    queryFn: () => analytics.pnlDaily(accountId!, PERIOD_DAYS[period] ?? 365, range),
     ...queryOpts,
   });
 
   const { data: bySymbol = [] } = useQuery({
-    queryKey: ["pnl-by-symbol", accountId, period],
-    queryFn: () => analytics.pnlBySymbol(accountId!, period),
+    queryKey: ["pnl-by-symbol", accountId, period, range],
+    queryFn: () => analytics.pnlBySymbol(accountId!, period, range),
     ...queryOpts,
   });
 
   const { data: cumulative = [] } = useQuery({
-    queryKey: ["pnl-cumulative", accountId, period],
-    queryFn: () => analytics.pnlCumulative(accountId!, period),
+    queryKey: ["pnl-cumulative", accountId, period, range],
+    queryFn: () => analytics.pnlCumulative(accountId!, period, range),
     ...queryOpts,
   });
 
@@ -170,7 +175,12 @@ export default function Dashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Dashboard</h1>
-        <PeriodToggle value={period} onChange={setPeriod} />
+        <PeriodToggle
+          value={period}
+          onChange={setPeriod}
+          dateRange={dateRange}
+          onDateRangeChange={setDateRange}
+        />
       </div>
 
       <ProBanner />

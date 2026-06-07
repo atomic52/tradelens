@@ -1,7 +1,9 @@
 import axios from "axios";
+import { format } from "date-fns";
 import type {
   Account,
   AnalyticsSummary,
+  DateRange,
   ImportResult,
   ImportUsage,
   Period,
@@ -11,6 +13,14 @@ import type {
   Trade,
   User,
 } from "@/types";
+
+function dateRangeParams(range?: DateRange | null) {
+  if (!range) return {};
+  return {
+    start_date: format(range.from, "yyyy-MM-dd"),
+    end_date: format(range.to, "yyyy-MM-dd"),
+  };
+}
 
 // Requests always go to /api/v1 — Vercel proxies to Fly in production,
 // Vite proxies to localhost:8000 in local dev. Same-origin in both cases.
@@ -104,24 +114,34 @@ export const billing = {
 };
 
 export const analytics = {
-  summary: (accountId: string, period: Period = "all") =>
+  summary: (accountId: string, period: Period = "all", range?: DateRange | null) =>
     api
-      .get<AnalyticsSummary>(`/accounts/${accountId}/analytics/summary`, { params: { period } })
+      .get<AnalyticsSummary>(`/accounts/${accountId}/analytics/summary`, {
+        params: { period, ...dateRangeParams(range) },
+      })
       .then((r) => r.data),
-  pnlDaily: (accountId: string, days = 30) =>
+  pnlDaily: (accountId: string, days = 30, range?: DateRange | null) =>
     api
-      .get<PnlDailyPoint[]>(`/accounts/${accountId}/analytics/pnl-daily`, { params: { days } })
+      .get<PnlDailyPoint[]>(`/accounts/${accountId}/analytics/pnl-daily`, {
+        params: range ? dateRangeParams(range) : { days },
+      })
       .then((r) => r.data),
-  pnlByHour: (accountId: string, period: Period = "all") =>
+  pnlByHour: (accountId: string, period: Period = "all", range?: DateRange | null) =>
     api
-      .get<PnlHourPoint[]>(`/accounts/${accountId}/analytics/pnl-by-hour`, { params: { period } })
+      .get<PnlHourPoint[]>(`/accounts/${accountId}/analytics/pnl-by-hour`, {
+        params: { period, ...dateRangeParams(range) },
+      })
       .then((r) => r.data),
-  pnlBySymbol: (accountId: string, period: Period = "all") =>
+  pnlBySymbol: (accountId: string, period: Period = "all", range?: DateRange | null) =>
     api
-      .get<PnlSymbolPoint[]>(`/accounts/${accountId}/analytics/pnl-by-symbol`, { params: { period } })
+      .get<PnlSymbolPoint[]>(`/accounts/${accountId}/analytics/pnl-by-symbol`, {
+        params: { period, ...dateRangeParams(range) },
+      })
       .then((r) => r.data),
-  pnlCumulative: (accountId: string, period: Period = "all") =>
+  pnlCumulative: (accountId: string, period: Period = "all", range?: DateRange | null) =>
     api
-      .get<PnlDailyPoint[]>(`/accounts/${accountId}/analytics/pnl-cumulative`, { params: { period } })
+      .get<PnlDailyPoint[]>(`/accounts/${accountId}/analytics/pnl-cumulative`, {
+        params: { period, ...dateRangeParams(range) },
+      })
       .then((r) => r.data),
 };

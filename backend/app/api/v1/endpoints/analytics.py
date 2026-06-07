@@ -1,9 +1,9 @@
 from collections import defaultdict
 from datetime import date, datetime, timedelta, timezone
-from typing import Literal
+from typing import Literal, Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,7 +18,19 @@ router = APIRouter()
 Period = Literal["today", "week", "month", "ytd", "all"]
 
 
-def _period_dates(period: Period) -> tuple[datetime | None, datetime | None]:
+def _period_dates(
+    period: Period,
+    start_date: Optional[date] = None,
+    end_date: Optional[date] = None,
+) -> tuple[datetime | None, datetime | None]:
+    if start_date is not None:
+        start = datetime(start_date.year, start_date.month, start_date.day, tzinfo=timezone.utc)
+        end = (
+            datetime(end_date.year, end_date.month, end_date.day, 23, 59, 59, tzinfo=timezone.utc)
+            if end_date
+            else None
+        )
+        return start, end
     today = date.today()
     if period == "today":
         start = datetime(today.year, today.month, today.day, tzinfo=timezone.utc)
@@ -51,9 +63,11 @@ async def _load_closed_trades(
     user_id: UUID,
     period: Period,
     session: AsyncSession,
+    start_date: Optional[date] = None,
+    end_date: Optional[date] = None,
 ) -> list[Trade]:
     await _verify_account_ownership(account_id, user_id, session)
-    start, end = _period_dates(period)
+    start, end = _period_dates(period, start_date, end_date)
     stmt = (
         select(Trade)
         .join(Account, Trade.account_id == Account.id)
@@ -142,10 +156,12 @@ def _compute_summary(trades: list[Trade]) -> dict:
 async def get_summary(
     account_id: UUID,
     period: Period = "all",
+    start_date: Optional[date] = Query(default=None),
+    end_date: Optional[date] = Query(default=None),
     session: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
 ):
-    trades = await _load_closed_trades(account_id, user.id, period, session)
+    trades = await _load_closed_trades(account_id, user.id, period, session, start_date, end_date)
     return _compute_summary(trades)
 
 
@@ -153,13 +169,24 @@ async def get_summary(
 async def get_pnl_daily(
     account_id: UUID,
     days: int = 30,
+    start_date: Optional[date] = Query(default=None),
+    end_date: Optional[date] = Query(default=None),
     session: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
 ):
-    # Clamp days to a sane range to prevent abuse (e.g. days=999999)
-    days = max(1, min(days, 365 * 5))
     await _verify_account_ownership(account_id, user.id, session)
-    cutoff = datetime.now(tz=timezone.utc) - timedelta(days=days)
+    if start_date is not None:
+        start_dt = datetime(start_date.year, start_date.month, start_date.day, tzinfo=timezone.utc)
+        end_dt = (
+            datetime(end_date.year, end_date.month, end_date.day, 23, 59, 59, tzinfo=timezone.utc)
+            if end_date
+            else datetime.now(tz=timezone.utc)
+        )
+        where_clauses = [Trade.closed_at >= start_dt, Trade.closed_at <= end_dt]
+    else:
+        days = max(1, min(days, 365 * 5))
+        cutoff = datetime.now(tz=timezone.utc) - timedelta(days=days)
+        where_clauses = [Trade.closed_at >= cutoff]
     result = await session.execute(
         select(Trade)
         .join(Account, Trade.account_id == Account.id)
@@ -167,7 +194,7 @@ async def get_pnl_daily(
             Trade.account_id == account_id,
             Account.user_id == user.id,
             Trade.status == "closed",
-            Trade.closed_at >= cutoff,
+            *where_clauses,
         )
         .order_by(Trade.closed_at)
     )
@@ -195,10 +222,12 @@ async def get_pnl_daily(
 async def get_pnl_cumulative(
     account_id: UUID,
     period: Period = "all",
+    start_date: Optional[date] = Query(default=None),
+    end_date: Optional[date] = Query(default=None),
     session: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
 ):
-    trades = await _load_closed_trades(account_id, user.id, period, session)
+    trades = await _load_closed_trades(account_id, user.id, period, session, start_date, end_date)
     cumulative = 0.0
     rows = []
     for t in trades:
@@ -215,10 +244,12 @@ async def get_pnl_cumulative(
 async def get_pnl_by_hour(
     account_id: UUID,
     period: Period = "all",
+    start_date: Optional[date] = Query(default=None),
+    end_date: Optional[date] = Query(default=None),
     session: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
 ):
-    trades = await _load_closed_trades(account_id, user.id, period, session)
+    trades = await _load_closed_trades(account_id, user.id, period, session, start_date, end_date)
 
     buckets: dict[int, list[float]] = defaultdict(list)
     for t in trades:
@@ -239,10 +270,12 @@ async def get_pnl_by_hour(
 async def get_pnl_by_symbol(
     account_id: UUID,
     period: Period = "all",
+    start_date: Optional[date] = Query(default=None),
+    end_date: Optional[date] = Query(default=None),
     session: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_active_user),
 ):
-    trades = await _load_closed_trades(account_id, user.id, period, session)
+    trades = await _load_closed_trades(account_id, user.id, period, session, start_date, end_date)
 
     buckets: dict[str, list[float]] = defaultdict(list)
     for t in trades:

@@ -1,4 +1,9 @@
-export type Period = "today" | "week" | "month" | "ytd" | "all";
+export type Period = "today" | "week" | "month" | "ytd" | "all" | "custom";
+
+export interface DateRange {
+  from: Date;
+  to: Date;
+}
 
 export interface User {
   id: string;
